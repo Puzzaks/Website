@@ -40,6 +40,7 @@ class WebMainState extends State<WebMain> {
         themeMode: ThemeMode.system,
         debugShowCheckedModeBanner: false,
         home: Scaffold(
+          backgroundColor: Color.fromRGBO(15, 15, 15, 1),
           body: SafeArea(
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
@@ -54,23 +55,42 @@ class WebMainState extends State<WebMain> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Card(
-                                clipBehavior: Clip.hardEdge,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(15),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left:10,
+                                  top:15
+                                ),
+                                child: Text(
+                                  "About",
+                                  style: const TextStyle(
+                                      fontSize: 32,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w100
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 350,
+                                    child: Card(
+                                      color: Color.fromRGBO(29, 27, 32, 1),
+                                      clipBehavior: Clip.hardEdge,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Row(
                                           mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
+                                            Padding(
+                                              padding: EdgeInsets.only(left: 15, right: 20),
+                                              child: Icon(Icons.person_outline_rounded),
+                                            ),
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
                                                 Text(
                                                   "Yo, I am Puzzak!",
@@ -80,30 +100,82 @@ class WebMainState extends State<WebMain> {
                                                   ),
                                                 ),
                                                 Text(
-                                                  "${(DateTime.now().difference(DateTime.utc(2002, 3, 18)).inDays / 365.25).toStringAsFixed(2)} y.o., ukrainian",
+                                                  "Welcome to my website!",
                                                   style: const TextStyle(
-                                                      fontSize: 16
+                                                    fontSize: 16,
                                                   ),
-                                                ),
+                                                )
                                               ],
-                                            ),
+                                            )
                                           ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  )),
+                                  ),
+                                  Container(
+                                    width: 350,
+                                    child: Card(
+                                      color: Color.fromRGBO(29, 27, 32, 1),
+                                      clipBehavior: Clip.hardEdge,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.only(left: 15, right: 20),
+                                              child: Icon(Icons.cake_rounded),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "${(DateTime.now().difference(DateTime.utc(2002, 3, 18)).inDays / 365.25).toStringAsFixed(2)} y.o.",
+                                                  style: const TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold
+                                                  ),
+                                                ),
+                                                Text(
+                                                  "${(DateTime.utc(DateTime.now().year, 3, 18).difference(DateTime.now()).inDays)} days left till I'm ${(DateTime.now().difference(DateTime.utc(2002, 3, 18)).inDays / 365.25).toStringAsFixed(0)}.",
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                )
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left:10,
+                                ),
+                                child: Text(
+                                  "Links",
+                                  style: const TextStyle(
+                                      fontSize: 32,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w100
+                                  ),
+                                ),
+                              ),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   linkCard(
                                     "Threads",
-                                    "Development blog",
+                                    "Follow my apps development",
                                     "https://threads.net/@puzzaks",
                                     Icon(Icons.format_list_bulleted_rounded),
                                   ),
                                   linkCard(
                                     "GitHub",
-                                    "Source code",
+                                    "Check out my source code",
                                     "https://github.com/Puzzak",
                                     Icon(Icons.code_rounded),
                                   ),
@@ -114,13 +186,13 @@ class WebMainState extends State<WebMain> {
                                 children: [
                                   linkCard(
                                     "Play Store",
-                                    "Published apps",
+                                    "Try out my apps",
                                     "https://play.google.com/store/apps/dev?id=8304874346039659820",
                                     Icon(Icons.android_rounded),
                                   ),
                                   linkCard(
                                     "Telegram",
-                                    "Personal Blog",
+                                    "Read my personal blog",
                                     "https://t.me/Puzzaks",
                                     Icon(Icons.mark_unread_chat_alt_rounded),
                                   ),
@@ -131,13 +203,13 @@ class WebMainState extends State<WebMain> {
                                 children: [
                                   linkCard(
                                     "LinkedIn",
-                                    "My network",
+                                    "Connect with my network",
                                     "https://linkedin.com/in/puzzak",
                                     Icon(Icons.people_outline_rounded),
                                   ),
                                   linkCard(
                                     "Twitter/X",
-                                    "Abandoned blog :)",
+                                    "Abandoned blog, nevermind",
                                     "https://x.com/puzzaks",
                                     Icon(Icons.rss_feed_rounded),
                                   ),
@@ -148,13 +220,13 @@ class WebMainState extends State<WebMain> {
                                 children: [
                                   linkCard(
                                     "Reddit",
-                                    "Follow me",
+                                    "Upvote my posts",
                                     "https://reddit.com/u/Puzzak",
                                     Icon(Icons.contact_page_rounded),
                                   ),
                                   linkCard(
                                     "Instagram",
-                                    "My pics",
+                                    "Look at my photography",
                                     "https://instagram.com/puzzaks/",
                                     Icon(Icons.camera_alt_rounded),
                                   ),
@@ -165,13 +237,13 @@ class WebMainState extends State<WebMain> {
                                 children: [
                                   linkCard(
                                     "YouTube",
-                                    "Watch me",
+                                    "Watch my videos",
                                     "https://youtube.com/@puzzak",
                                     Icon(Icons.video_library_rounded),
                                   ),
                                   linkCard(
                                     "Twitch",
-                                    "My streams",
+                                    "Join my streams  ",
                                     "https://twitch.tv/puzzak",
                                     Icon(Icons.videogame_asset_rounded),
                                   ),
