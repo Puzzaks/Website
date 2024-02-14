@@ -24,4 +24,5 @@ flutter:
     - assets/data/authors.json
     - assets/puzzak_av.jpg
     - assets/profile.jpg
+    - assets/dashboard-project.png
     - pubspec.yaml
