@@ -58,20 +58,7 @@ class WebMainState extends State<WebMain> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left:10,
-                                  top:15
-                              ),
-                              child: Text(
-                                "About",
-                                style: const TextStyle(
-                                    fontSize: 32,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w100
-                                ),
-                              ),
-                            ),
+                            headerLine("About", 2),
                             Row(
                               children: [
                                 Container(
@@ -150,19 +137,7 @@ class WebMainState extends State<WebMain> {
                                 )
                               ],
                             ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left:10,
-                              ),
-                              child: Text(
-                                "Links",
-                                style: const TextStyle(
-                                    fontSize: 32,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w100
-                                ),
-                              ),
-                            ),
+                            headerLine("Links", 10),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -248,184 +223,44 @@ class WebMainState extends State<WebMain> {
                                 ),
                               ],
                             ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left:10,
-                              ),
-                              child: Text(
-                                "Projects",
-                                style: const TextStyle(
-                                    fontSize: 32,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w100
-                                ),
-                              ),
-                            ),
-                            Stack(
-                              children: [
-                                Container(
-                                  width: 720,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [Icon(Icons.keyboard_arrow_right_rounded)],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 700,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 350,
-                                          child: Card(
-                                            color: Color.fromRGBO(29, 27, 32, 1),
-                                            clipBehavior: Clip.hardEdge,
-                                            child: InkWell(
-                                                onTap: () {
-                                                  // launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                                                },
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    ClipRRect(
-                                                      clipBehavior: Clip.hardEdge,
-                                                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                      child: Image.asset(
-                                                          "assets/dashboard-project.png",
-                                                          width:350
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.all(10),
-                                                      child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text(
-                                                            "Dashboard",
-                                                            style: const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight: FontWeight.bold
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
-                                                            style: const TextStyle(
-                                                              fontSize: 16,
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                            ),
-                                          ),
+                            headerLine("Projects", 3),
+                            Container(
+                              width: 700,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    projectCard(
+                                        Image.asset(
+                                            "assets/autostream-project.png",
+                                            width:350
                                         ),
-                                        Container(
-                                          width: 350,
-                                          child: Card(
-                                            color: Color.fromRGBO(29, 27, 32, 1),
-                                            clipBehavior: Clip.hardEdge,
-                                            child: InkWell(
-                                                onTap: () {
-                                                  // launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                                                },
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    ClipRRect(
-                                                      clipBehavior: Clip.hardEdge,
-                                                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                      child: Image.asset(
-                                                          "assets/dashboard-project.png",
-                                                          width:350
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.all(10),
-                                                      child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text(
-                                                            "Dashboard",
-                                                            style: const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight: FontWeight.bold
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
-                                                            style: const TextStyle(
-                                                              fontSize: 16,
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 350,
-                                          child: Card(
-                                            color: Color.fromRGBO(29, 27, 32, 1),
-                                            clipBehavior: Clip.hardEdge,
-                                            child: InkWell(
-                                                onTap: () {
-                                                  // launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                                                },
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    ClipRRect(
-                                                      clipBehavior: Clip.hardEdge,
-                                                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                      child: Image.asset(
-                                                          "assets/dashboard-project.png",
-                                                          width:350
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding: EdgeInsets.all(10),
-                                                      child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: [
-                                                          Text(
-                                                            "Dashboard",
-                                                            style: const TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight: FontWeight.bold
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
-                                                            style: const TextStyle(
-                                                              fontSize: 16,
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                            ),
-                                          ),
-                                        )
-                                      ],
+                                        "Autostreaming project",
+                                        "Real-time software-generated videofeed, using FFMPEG on Raspberry Pi with 96.66% uptime.",
+                                        "https://stories.puzzak.page/autostream.html"
                                     ),
-                                  ),
-                                )
-                              ],
+                                    projectCard(
+                                        Image.asset(
+                                            "assets/dashboard-project.png",
+                                            width:350
+                                        ),
+                                        "Dashboard",
+                                        "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
+                                        "https://link.puzzak.page/?dashboard"
+                                    ),
+                                    projectCard(
+                                        Image.asset(
+                                            "assets/links-project.png",
+                                            width:350
+                                        ),
+                                        "Link shortener",
+                                        "Simple link shortener with statistics. Yes, available for everyone.",
+                                        "https://link.puzzak.page/?dashboard"
+                                    ),
+                                  ],
+                                ),
+                              ),
                             )
 
                           ],

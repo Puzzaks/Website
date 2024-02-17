@@ -25,4 +25,8 @@ flutter:
     - assets/puzzak_av.jpg
     - assets/profile.jpg
     - assets/dashboard-project.png
+    - assets/autostream-project.png
+    - assets/links-project.png
+    - assets/map-project.png
+    - assets/secret-project.png
     - pubspec.yaml
