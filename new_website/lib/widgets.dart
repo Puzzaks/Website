@@ -9,7 +9,6 @@ Widget linkCard(String title, String subtitle, String url, Icon icon, [double wi
     child: Padding(
       padding: EdgeInsets.symmetric(horizontal: width==350?0:width==700?0:10),
       child: Card(
-        color: Color.fromRGBO(29, 27, 32, 1),
         clipBehavior: Clip.hardEdge,
         child: InkWell(
           onTap: () {
@@ -76,7 +75,7 @@ Widget headerLine(String title, int count, [double width=680]){
               title,
               style: const TextStyle(
                   fontSize: 32,
-                  color: Colors.grey,
+                  color: Colors.teal,
                   fontWeight: FontWeight.w100
               ),
             ),
@@ -84,7 +83,7 @@ Widget headerLine(String title, int count, [double width=680]){
               count.toString(),
               style: const TextStyle(
                   fontSize: 32,
-                  color: Colors.grey,
+                  color: Colors.teal,
                   fontWeight: FontWeight.w100
               ),
             )
@@ -98,7 +97,6 @@ Widget projectCard(Image pic, String title, String subtitle, String action){
   return Container(
     width: 350,
     child: Card(
-      color: Color.fromRGBO(29, 27, 32, 1),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
           onTap: () {
