@@ -62,8 +62,10 @@ Widget linkCard(String title, String subtitle, String url, Icon icon, [double wi
 
 Widget headerLine(String title, int count, [double width=680]){
   return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 15,
+      padding: EdgeInsets.only(
+        left: 15,
+        right: 15,
+        top: 15
       ),
       child: Container(
         width: width,
