@@ -24,6 +24,7 @@ class WebMainState extends State<WebMain> {
   int currentTimestamp = DateTime.now().millisecondsSinceEpoch.toInt();
   Duration ping = const Duration(milliseconds: 0);
   Map telemetry = jsonDecode('{"netspd":{"in":0,"out":0},"time":0.0,"temp":0,"util":0,"memo":{"total":"0","avail":"0"},"uptime":0}');
+  Map rusnya = {};
   getTelemetry(){
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       startingTimestamp = DateTime.now().millisecondsSinceEpoch.toInt();
@@ -41,8 +42,23 @@ class WebMainState extends State<WebMain> {
           telemetry = jsonDecode(response.body);
         });
       } catch (_) {
-        jsonDecode('{"netspd":{"in":0,"out":0},"time":0.0,"temp":0,"util":0,"memo":{"total":"1","avail":"1"},"uptime":0}');
+        telemetry = jsonDecode('{"netspd":{"in":0,"out":0},"time":0.0,"temp":0,"util":0,"memo":{"total":"1","avail":"1"},"uptime":0}');
       }
+    });
+  }
+  getRusnya(){
+    Timer.periodic(const Duration(seconds: 5), (timer) async {
+      String endpoint = "russianwarship.rip";
+      String method = "api/v2/statistics/latest";
+      final response = await http.get(
+        Uri.https(
+            endpoint, method
+        ),
+      );
+      setState(() {
+        rusnya = jsonDecode(response.body)["data"]["stats"];
+        print(rusnya);
+      });
     });
   }
   String formatNetworkSpeed(int speed) {
@@ -68,16 +84,17 @@ class WebMainState extends State<WebMain> {
 
   @override
   void initState() {
+    super.initState();
     WidgetsFlutterBinding.ensureInitialized();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getTelemetry();
+      getRusnya();
     });
-    super.initState();
   }
   static final _defaultLightColorScheme = ColorScheme.fromSwatch(
       primarySwatch: Colors.teal
   );
-  ThemeMode mode = ThemeMode.dark;
+  ThemeMode mode = ThemeMode.system;
   final MaterialStateProperty<Icon?> thumbIcon = MaterialStateProperty.resolveWith<Icon?>(
         (Set<MaterialState> states) {
       if (states.contains(MaterialState.selected)) {
@@ -116,10 +133,9 @@ class WebMainState extends State<WebMain> {
                 DateTime now = DateTime.now();
                 final DateTime birthday = DateTime(2002, 3, 18);
                 DateTime nextBirthday = DateTime(now.year, birthday.month, birthday.day);
-                int uptimeMilliseconds =
-                (currentTimestamp - telemetry["uptime"] * 1000).toInt();
-                Duration uptimeDuration = Duration(milliseconds: uptimeMilliseconds);
-                DateTime startDate = DateTime.fromMillisecondsSinceEpoch(telemetry["uptime"] * 1000);
+                DateTime remoteTime = DateTime.fromMillisecondsSinceEpoch((telemetry["time"] * 1000).toInt());
+                DateTime startDate = DateTime.fromMillisecondsSinceEpoch((telemetry["uptime"] * 1000).toInt()).subtract(remoteTime.timeZoneOffset);
+                Duration uptimeDuration = remoteTime.difference(startDate);
                 String formatDuration(Duration duration) {
                   String twoDigits(int n) => n.toString().padLeft(2, '0');
                   final days = duration.inDays;
@@ -127,7 +143,7 @@ class WebMainState extends State<WebMain> {
                   final minutes = twoDigits(duration.inMinutes.remainder(60));
                   final seconds = twoDigits(duration.inSeconds.remainder(60));
 
-                  return '${DateFormat.yMMMEd().format(startDate)} ${DateFormat.jms().format(startDate)}\n(${days==0?"":"$days days, "}${hours==0?"":"$hours hrs, "}${minutes==0?"":"$minutes min, "}$seconds sec ago)';
+                  return '${DateFormat.yMMMEd().format(startDate)} ${DateFormat.jms().format(startDate)}\n(${days==0?"":"$days days, "}${hours=="00"?"":"$hours hrs, "}${minutes=="00"?"":"$minutes min, "}$seconds sec ago)';
                 }
                 String formattedUptime = formatDuration(uptimeDuration);
                 double mempercent = 0;
@@ -254,14 +270,14 @@ class WebMainState extends State<WebMain> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      "Dark mode",
+                                                      "Enable Dark Mode",
                                                       style: const TextStyle(
                                                           fontSize: 18,
                                                           fontWeight: FontWeight.bold
                                                       ),
                                                     ),
                                                     Text(
-                                                      "Switch color mode",
+                                                      mode == ThemeMode.system?"Adjusted to your system now":mode == ThemeMode.light?"Switched to Light Mode now":"Switched to Dark Mode now",
                                                       style: const TextStyle(
                                                         fontSize: 16,
                                                       ),
@@ -292,12 +308,13 @@ class WebMainState extends State<WebMain> {
                                   ),
                                 ),
                               ),
-                              headerLine("Telemetry", 7, scaffoldWidth-30),
-                              Container(
+                              headerLine("Telemetry", telemetry["uptime"] == 0?1:7, scaffoldWidth-30),
+                              telemetry["uptime"] == 0?Container(
                                 width: scaffoldWidth,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   child: Card(
+                                    color: Theme.of(context).colorScheme.errorContainer,
                                     clipBehavior: Clip.hardEdge,
                                     child: Padding(
                                       padding: const EdgeInsets.all(10),
@@ -306,20 +323,20 @@ class WebMainState extends State<WebMain> {
                                         children: [
                                           const Padding(
                                             padding: EdgeInsets.only(left: 15, right: 20),
-                                            child: Icon(Icons.timer_outlined),
+                                            child: Icon(Icons.error_outline_rounded),
                                           ),
                                           Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "Booted ${formattedUptime.split("\n(")[1].split(")")[0]}",
+                                                "Disconnected!",
                                                 style: const TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold
                                                 ),
                                               ),
                                               Text(
-                                                "Since ${formattedUptime.split("\n")[0]}",
+                                                "We are not getting telemetry, server is unavailable",
                                                 style: const TextStyle(
                                                   fontSize: 14,
                                                 ),
@@ -331,339 +348,382 @@ class WebMainState extends State<WebMain> {
                                     ),
                                   ),
                                 ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    width: scaffoldWidth/2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 10, right: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2.5),
-                                                    child: CircularProgressIndicator(
-                                                      value: telemetry["netspd"]["in"]/125000000,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
+                              ):
+                              Column(
+                                  children: [
+                                    Container(
+                                      width: scaffoldWidth,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        child: Card(
+                                          clipBehavior: Clip.hardEdge,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                const Padding(
+                                                  padding: EdgeInsets.only(left: 15, right: 20),
+                                                  child: Icon(Icons.timer_outlined),
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Booted ${formattedUptime.split("\n(")[1].split(")")[0]}",
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.bold
+                                                      ),
                                                     ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.download_rounded),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Download",
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    formatNetworkSpeed(telemetry["netspd"]["in"]),
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: scaffoldWidth/2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 10),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2.5),
-                                                    child: CircularProgressIndicator(
-                                                      value: telemetry["netspd"]["out"]/125000000,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.upload_rounded),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Upload",
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    formatNetworkSpeed(telemetry["netspd"]["out"]),
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Container(
-                                    width: scaffoldWidth/2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 10, right: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2.5),
-                                                    child: CircularProgressIndicator(
-                                                      value: telemetry["util"]/100,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.developer_board),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "CPU Load",
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "${telemetry["util"].toStringAsFixed(2)}%",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: scaffoldWidth/2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 10),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2),
-                                                    child: CircularProgressIndicator(
-                                                      value: (telemetry["temp"] - 20)/60,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.thermostat_rounded),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "CPU Temp",
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "${telemetry["temp"].toStringAsFixed(2)}°",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Container(
-                                    width: (scaffoldWidth/5)*3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2.5),
-                                                    child: CircularProgressIndicator(
-                                                      value: mempercent/100,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.memory),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "RAM Usage",
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                      "${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)",
-                                                    style: const TextStyle(
+                                                    Text(
+                                                      "Since ${formattedUptime.split("\n")[0]}",
+                                                      style: const TextStyle(
                                                         fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
+                                                      ),
+                                                    )
+                                                  ],
+                                                )
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    width: (scaffoldWidth/5)*2,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 10),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2),
-                                                    child: CircularProgressIndicator(
-                                                      value: ping.inMilliseconds/1000,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          width: scaffoldWidth/2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 10, right: 0),
+                                            child: Card(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(2.5),
+                                                          child: CircularProgressIndicator(
+                                                            value: telemetry["netspd"]["in"]/125000000,
+                                                            backgroundColor: Colors.transparent,
+                                                            strokeCap: StrokeCap.round,
+                                                            color: Theme.of(context).colorScheme.primary,
+                                                          ),
+                                                        ),
+                                                        const Padding(
+                                                          padding: EdgeInsets.all(8.5),
+                                                          child: Icon(Icons.download_rounded),
+                                                        )
+                                                      ],
                                                     ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.network_ping_rounded),
-                                                  )
-                                                ],
+                                                    const SizedBox(width: 10,),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text(
+                                                          "Download",
+                                                          overflow: TextOverflow.ellipsis,
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          formatNetworkSpeed(telemetry["netspd"]["in"]),
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
                                               ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Ping",
-                                                    style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "${ping.inMilliseconds.toInt()} ms",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                        Container(
+                                          width: scaffoldWidth/2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 0, right: 10),
+                                            child: Card(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(2.5),
+                                                          child: CircularProgressIndicator(
+                                                            value: telemetry["netspd"]["out"]/125000000,
+                                                            backgroundColor: Colors.transparent,
+                                                            strokeCap: StrokeCap.round,
+                                                            color: Theme.of(context).colorScheme.primary,
+                                                          ),
+                                                        ),
+                                                        const Padding(
+                                                          padding: EdgeInsets.all(8.5),
+                                                          child: Icon(Icons.upload_rounded),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 10,),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text(
+                                                          "Upload",
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          formatNetworkSpeed(telemetry["netspd"]["out"]),
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: scaffoldWidth/2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 10, right: 0),
+                                            child: Card(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(2.5),
+                                                          child: CircularProgressIndicator(
+                                                            value: telemetry["util"]/100,
+                                                            backgroundColor: Colors.transparent,
+                                                            strokeCap: StrokeCap.round,
+                                                            color: Theme.of(context).colorScheme.primary,
+                                                          ),
+                                                        ),
+                                                        const Padding(
+                                                          padding: EdgeInsets.all(8.5),
+                                                          child: Icon(Icons.developer_board),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 10,),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text(
+                                                          "CPU Load",
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "${telemetry["util"].toStringAsFixed(2)}%",
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: scaffoldWidth/2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 0, right: 10),
+                                            child: Card(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(2),
+                                                          child: CircularProgressIndicator(
+                                                            value: (telemetry["temp"] - 20)/60,
+                                                            backgroundColor: Colors.transparent,
+                                                            strokeCap: StrokeCap.round,
+                                                            color: Theme.of(context).colorScheme.primary,
+                                                          ),
+                                                        ),
+                                                        const Padding(
+                                                          padding: EdgeInsets.all(8.5),
+                                                          child: Icon(Icons.thermostat_rounded),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 10,),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text(
+                                                          "CPU Temp",
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "${telemetry["temp"].toStringAsFixed(2)}°",
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: (scaffoldWidth/5)*3,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 10),
+                                            child: Card(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(2.5),
+                                                          child: CircularProgressIndicator(
+                                                            value: mempercent/100,
+                                                            backgroundColor: Colors.transparent,
+                                                            strokeCap: StrokeCap.round,
+                                                            color: Theme.of(context).colorScheme.primary,
+                                                          ),
+                                                        ),
+                                                        const Padding(
+                                                          padding: EdgeInsets.all(8.5),
+                                                          child: Icon(Icons.memory),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 10,),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text(
+                                                          "RAM Usage",
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)",
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: (scaffoldWidth/5)*2,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 0, right: 10),
+                                            child: Card(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.all(2),
+                                                          child: CircularProgressIndicator(
+                                                            value: ping.inMilliseconds/1000,
+                                                            backgroundColor: Colors.transparent,
+                                                            strokeCap: StrokeCap.round,
+                                                            color: Theme.of(context).colorScheme.primary,
+                                                          ),
+                                                        ),
+                                                        const Padding(
+                                                          padding: EdgeInsets.all(8.5),
+                                                          child: Icon(Icons.network_ping_rounded),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    const SizedBox(width: 10,),
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text(
+                                                          "Ping",
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "${ping.inMilliseconds.toInt()} ms",
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                               ),
                               headerLine("Links", 11, scaffoldWidth-30),
                               linkCard(
@@ -802,7 +862,7 @@ class WebMainState extends State<WebMain> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              headerLine("About", 2),
+                              headerLine("About", 3),
                               Row(
                                 children: [
                                   Container(
@@ -879,7 +939,6 @@ class WebMainState extends State<WebMain> {
                                   )
                                 ],
                               ),
-                              headerLine("Telemetry", 7),
                               Container(
                                 width: 700,
                                 child: Padding(
@@ -889,26 +948,87 @@ class WebMainState extends State<WebMain> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(10),
                                       child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                              children: [
+                                                const Padding(
+                                                  padding: EdgeInsets.only(left: 15, right: 20),
+                                                  child: Icon(Icons.contrast),
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      "Enable Dark Mode",
+                                                      style: const TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight: FontWeight.bold
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      mode == ThemeMode.system?"Adjusted to your system now":mode == ThemeMode.light?"Switched to Light Mode now":"Switched to Dark Mode now",
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ]
+                                          ),
+                                          Switch(
+                                            thumbIcon: thumbIcon,
+                                            value: mode == ThemeMode.dark,
+                                            inactiveThumbColor: Colors.teal,
+                                            activeColor: Colors.teal,
+                                            inactiveTrackColor: Color.fromRGBO(29, 27, 32, 1),
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                if(mode == ThemeMode.dark){
+                                                  mode = ThemeMode.light;
+                                                }else{
+                                                  mode = ThemeMode.dark;
+                                                }
+                                              });
+                                            },
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              headerLine("Telemetry", telemetry["uptime"] == 0?1:7),
+                              telemetry["uptime"] == 0?Container(
+                                width: 700,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                                  child: Card(
+                                    color: Theme.of(context).colorScheme.errorContainer,
+                                    clipBehavior: Clip.hardEdge,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           const Padding(
                                             padding: EdgeInsets.only(left: 15, right: 20),
-                                            child: Icon(Icons.timer_outlined),
+                                            child: Icon(Icons.error_outline_rounded),
                                           ),
                                           Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "Booted ${formattedUptime.split("\n(")[1].split(")")[0]}",
+                                                "Disconnected!",
                                                 style: const TextStyle(
-                                                    fontSize: 18,
+                                                    fontSize: 16,
                                                     fontWeight: FontWeight.bold
                                                 ),
                                               ),
                                               Text(
-                                                "Since ${formattedUptime.split("\n")[0]}",
+                                                "We are not getting telemetry, server is unavailable",
                                                 style: const TextStyle(
-                                                  fontSize: 16,
+                                                  fontSize: 14,
                                                 ),
                                               )
                                             ],
@@ -918,332 +1038,375 @@ class WebMainState extends State<WebMain> {
                                     ),
                                   ),
                                 ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    width: 700/3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2.5),
-                                                    child: CircularProgressIndicator(
-                                                      value: telemetry["netspd"]["in"]/125000000,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
+                              ):
+                                  Column(
+                                      children: [
+                                        Container(
+                                          width: 700,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 0),
+                                            child: Card(
+                                              clipBehavior: Clip.hardEdge,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(10),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    const Padding(
+                                                      padding: EdgeInsets.only(left: 15, right: 20),
+                                                      child: Icon(Icons.timer_outlined),
                                                     ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.download_rounded),
-                                                  )
-                                                ],
+                                                    Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          "Booted ${formattedUptime.split("\n(")[1].split(")")[0]}",
+                                                          style: const TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "Since ${formattedUptime.split("\n")[0]}",
+                                                          style: const TextStyle(
+                                                            fontSize: 16,
+                                                          ),
+                                                        )
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
                                               ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Download",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    formatNetworkSpeed(telemetry["netspd"]["in"]),
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              width: 700/3,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(left: 0, right: 0),
+                                                child: Card(
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Padding(
+                                                              padding: const EdgeInsets.all(2.5),
+                                                              child: CircularProgressIndicator(
+                                                                value: telemetry["netspd"]["in"]/125000000,
+                                                                backgroundColor: Colors.transparent,
+                                                                strokeCap: StrokeCap.round,
+                                                                color: Theme.of(context).colorScheme.primary,
+                                                              ),
+                                                            ),
+                                                            const Padding(
+                                                              padding: EdgeInsets.all(8.5),
+                                                              child: Icon(Icons.download_rounded),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(width: 10,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            const Text(
+                                                              "Download",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight: FontWeight.bold
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              formatNetworkSpeed(telemetry["netspd"]["in"]),
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 700/3,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(left: 0, right: 0),
+                                                child: Card(
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Padding(
+                                                              padding: const EdgeInsets.all(2.5),
+                                                              child: CircularProgressIndicator(
+                                                                value: telemetry["netspd"]["out"]/125000000,
+                                                                backgroundColor: Colors.transparent,
+                                                                strokeCap: StrokeCap.round,
+                                                                color: Theme.of(context).colorScheme.primary,
+                                                              ),
+                                                            ),
+                                                            const Padding(
+                                                              padding: EdgeInsets.all(8.5),
+                                                              child: Icon(Icons.upload_rounded),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(width: 10,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            const Text(
+                                                              "Upload",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight: FontWeight.bold
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              formatNetworkSpeed(telemetry["netspd"]["out"]),
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 700/3,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(left: 0, right: 0),
+                                                child: Card(
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Padding(
+                                                              padding: const EdgeInsets.all(2),
+                                                              child: CircularProgressIndicator(
+                                                                value: ping.inMilliseconds/1000,
+                                                                backgroundColor: Colors.transparent,
+                                                                strokeCap: StrokeCap.round,
+                                                                color: Theme.of(context).colorScheme.primary,
+                                                              ),
+                                                            ),
+                                                            const Padding(
+                                                              padding: EdgeInsets.all(8.5),
+                                                              child: Icon(Icons.network_ping_rounded),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(width: 10,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            const Text(
+                                                              "Ping",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight: FontWeight.bold
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              "${ping.inMilliseconds.toInt()} ms",
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 700/3,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(left: 0, right: 0),
+                                                child: Card(
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Padding(
+                                                              padding: const EdgeInsets.all(2.5),
+                                                              child: CircularProgressIndicator(
+                                                                value: telemetry["util"]/100,
+                                                                backgroundColor: Colors.transparent,
+                                                                strokeCap: StrokeCap.round,
+                                                                color: Theme.of(context).colorScheme.primary,
+                                                              ),
+                                                            ),
+                                                            const Padding(
+                                                              padding: EdgeInsets.all(8.5),
+                                                              child: Icon(Icons.developer_board),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(width: 10,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            const Text(
+                                                              "CPU Load",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight: FontWeight.bold
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              "${telemetry["util"].toStringAsFixed(2)}%",
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 700/3,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(left: 0, right: 0),
+                                                child: Card(
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Padding(
+                                                              padding: const EdgeInsets.all(2),
+                                                              child: CircularProgressIndicator(
+                                                                value: (telemetry["temp"] - 20)/60,
+                                                                backgroundColor: Colors.transparent,
+                                                                strokeCap: StrokeCap.round,
+                                                                color: Theme.of(context).colorScheme.primary,
+                                                              ),
+                                                            ),
+                                                            const Padding(
+                                                              padding: EdgeInsets.all(8.5),
+                                                              child: Icon(Icons.thermostat_rounded),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(width: 10,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            const Text(
+                                                              "CPU Temperature",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight: FontWeight.bold
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              "${telemetry["temp"].toStringAsFixed(2)}°",
+                                                              style: const TextStyle(
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 700/3,
+                                              child: Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 0),
+                                                child: Card(
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Padding(
+                                                              padding: const EdgeInsets.all(2),
+                                                              child: CircularProgressIndicator(
+                                                                value: mempercent/100,
+                                                                backgroundColor: Colors.transparent,
+                                                                strokeCap: StrokeCap.round,
+                                                                color: Theme.of(context).colorScheme.primary,
+                                                              ),
+                                                            ),
+                                                            const Padding(
+                                                              padding: EdgeInsets.all(8.5),
+                                                              child: Icon(Icons.memory),
+                                                            )
+                                                          ],
+                                                        ),
+                                                        const SizedBox(width: 10,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            const Text(
+                                                              "RAM Usage",
+                                                              style: TextStyle(
+                                                                  fontSize: 18,
+                                                                  fontWeight: FontWeight.bold
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                                "${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)"
+                                                            ),
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ],
                                   ),
-                                  Container(
-                                    width: 700/3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2.5),
-                                                    child: CircularProgressIndicator(
-                                                      value: telemetry["netspd"]["out"]/125000000,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.upload_rounded),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Upload",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    formatNetworkSpeed(telemetry["netspd"]["out"]),
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 700/3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2),
-                                                    child: CircularProgressIndicator(
-                                                      value: ping.inMilliseconds/1000,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.network_ping_rounded),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Ping",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "${ping.inMilliseconds.toInt()} ms",
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 700/3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2.5),
-                                                    child: CircularProgressIndicator(
-                                                      value: telemetry["util"]/100,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.developer_board),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "CPU Load",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "${telemetry["util"].toStringAsFixed(2)}%",
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 700/3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0, right: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2),
-                                                    child: CircularProgressIndicator(
-                                                      value: (telemetry["temp"] - 20)/60,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.thermostat_rounded),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "CPU Temperature",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "${telemetry["temp"].toStringAsFixed(2)}°",
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 700/3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 0),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              Stack(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(2),
-                                                    child: CircularProgressIndicator(
-                                                      value: mempercent/100,
-                                                      backgroundColor: Colors.transparent,
-                                                      strokeCap: StrokeCap.round,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                                  ),
-                                                  const Padding(
-                                                    padding: EdgeInsets.all(8.5),
-                                                    child: Icon(Icons.memory),
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(width: 10,),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "RAM Usage",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                      "${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)"
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
                               headerLine("Links", 11),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -1398,7 +1561,7 @@ class WebMainState extends State<WebMain> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                headerLine("About", 2),
+                                headerLine("About", 3),
                                 Row(
                                   children: [
                                     Container(
@@ -1475,8 +1638,6 @@ class WebMainState extends State<WebMain> {
                                     )
                                   ],
                                 ),
-
-                                headerLine("Telemetry", 7),
                                 Container(
                                   width: 700,
                                   child: Padding(
@@ -1486,26 +1647,87 @@ class WebMainState extends State<WebMain> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
                                         child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                                children: [
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(left: 15, right: 20),
+                                                    child: Icon(Icons.contrast),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "Enable Dark Mode",
+                                                        style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.bold
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        mode == ThemeMode.system?"Adjusted to your system now":mode == ThemeMode.light?"Switched to Light Mode now":"Switched to Dark Mode now",
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ]
+                                            ),
+                                            Switch(
+                                              thumbIcon: thumbIcon,
+                                              value: mode == ThemeMode.dark,
+                                              inactiveThumbColor: Colors.teal,
+                                              activeColor: Colors.teal,
+                                              inactiveTrackColor: Color.fromRGBO(29, 27, 32, 1),
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  if(mode == ThemeMode.dark){
+                                                    mode = ThemeMode.light;
+                                                  }else{
+                                                    mode = ThemeMode.dark;
+                                                  }
+                                                });
+                                              },
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                headerLine("Telemetry", telemetry["uptime"] == 0?1:7),
+                                telemetry["uptime"] == 0?Container(
+                                  width: 700,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                                    child: Card(
+                                      color: Theme.of(context).colorScheme.errorContainer,
+                                      clipBehavior: Clip.hardEdge,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10),
+                                        child: Row(
                                           mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
                                             const Padding(
                                               padding: EdgeInsets.only(left: 15, right: 20),
-                                              child: Icon(Icons.timer_outlined),
+                                              child: Icon(Icons.error_outline_rounded),
                                             ),
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  "Booted ${formattedUptime.split("\n(")[1].split(")")[0]}",
+                                                  "Disconnected!",
                                                   style: const TextStyle(
-                                                      fontSize: 18,
+                                                      fontSize: 16,
                                                       fontWeight: FontWeight.bold
                                                   ),
                                                 ),
                                                 Text(
-                                                  "Since ${formattedUptime.split("\n")[0]}",
+                                                  "We are not getting telemetry, server is unavailable",
                                                   style: const TextStyle(
-                                                    fontSize: 16,
+                                                    fontSize: 14,
                                                   ),
                                                 )
                                               ],
@@ -1515,331 +1737,374 @@ class WebMainState extends State<WebMain> {
                                       ),
                                     ),
                                   ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 700/3,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 0, right: 0),
-                                        child: Card(
-                                          clipBehavior: Clip.hardEdge,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(2.5),
-                                                      child: CircularProgressIndicator(
-                                                        value: telemetry["netspd"]["in"]/125000000,
-                                                        backgroundColor: Colors.transparent,
-                                                        strokeCap: StrokeCap.round,
-                                                        color: Theme.of(context).colorScheme.primary,
+                                ):
+                                Column(
+                                    children: [
+                                      Container(
+                                        width: 700,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 0),
+                                          child: Card(
+                                            clipBehavior: Clip.hardEdge,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(10),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(left: 15, right: 20),
+                                                    child: Icon(Icons.timer_outlined),
+                                                  ),
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "Booted ${formattedUptime.split("\n(")[1].split(")")[0]}",
+                                                        style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight: FontWeight.bold
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.all(8.5),
-                                                      child: Icon(Icons.download_rounded),
-                                                    )
-                                                  ],
-                                                ),
-                                                const SizedBox(width: 10,),
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "Download",
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      formatNetworkSpeed(telemetry["netspd"]["in"]),
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
+                                                      Text(
+                                                        "Since ${formattedUptime.split("\n")[0]}",
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Container(
-                                      width: 700/3,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 0, right: 0),
-                                        child: Card(
-                                          clipBehavior: Clip.hardEdge,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(2.5),
-                                                      child: CircularProgressIndicator(
-                                                        value: telemetry["netspd"]["out"]/125000000,
-                                                        backgroundColor: Colors.transparent,
-                                                        strokeCap: StrokeCap.round,
-                                                        color: Theme.of(context).colorScheme.primary,
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            width: 700/3,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 0, right: 0),
+                                              child: Card(
+                                                clipBehavior: Clip.hardEdge,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(10),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Stack(
+                                                        children: [
+                                                          Padding(
+                                                            padding: const EdgeInsets.all(2.5),
+                                                            child: CircularProgressIndicator(
+                                                              value: telemetry["netspd"]["in"]/125000000,
+                                                              backgroundColor: Colors.transparent,
+                                                              strokeCap: StrokeCap.round,
+                                                              color: Theme.of(context).colorScheme.primary,
+                                                            ),
+                                                          ),
+                                                          const Padding(
+                                                            padding: EdgeInsets.all(8.5),
+                                                            child: Icon(Icons.download_rounded),
+                                                          )
+                                                        ],
                                                       ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.all(8.5),
-                                                      child: Icon(Icons.upload_rounded),
-                                                    )
-                                                  ],
+                                                      const SizedBox(width: 10,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            "Download",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            formatNetworkSpeed(telemetry["netspd"]["in"]),
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(width: 10,),
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "Upload",
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      formatNetworkSpeed(telemetry["netspd"]["out"]),
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 700/3,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 0, right: 0),
-                                        child: Card(
-                                          clipBehavior: Clip.hardEdge,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(2),
-                                                      child: CircularProgressIndicator(
-                                                        value: ping.inMilliseconds/1000,
-                                                        backgroundColor: Colors.transparent,
-                                                        strokeCap: StrokeCap.round,
-                                                        color: Theme.of(context).colorScheme.primary,
+                                          Container(
+                                            width: 700/3,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 0, right: 0),
+                                              child: Card(
+                                                clipBehavior: Clip.hardEdge,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(10),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Stack(
+                                                        children: [
+                                                          Padding(
+                                                            padding: const EdgeInsets.all(2.5),
+                                                            child: CircularProgressIndicator(
+                                                              value: telemetry["netspd"]["out"]/125000000,
+                                                              backgroundColor: Colors.transparent,
+                                                              strokeCap: StrokeCap.round,
+                                                              color: Theme.of(context).colorScheme.primary,
+                                                            ),
+                                                          ),
+                                                          const Padding(
+                                                            padding: EdgeInsets.all(8.5),
+                                                            child: Icon(Icons.upload_rounded),
+                                                          )
+                                                        ],
                                                       ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.all(8.5),
-                                                      child: Icon(Icons.network_ping_rounded),
-                                                    )
-                                                  ],
+                                                      const SizedBox(width: 10,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            "Upload",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            formatNetworkSpeed(telemetry["netspd"]["out"]),
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(width: 10,),
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "Ping",
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      "${ping.inMilliseconds.toInt()} ms",
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 700/3,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 0, right: 0),
-                                        child: Card(
-                                          clipBehavior: Clip.hardEdge,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(2.5),
-                                                      child: CircularProgressIndicator(
-                                                        value: telemetry["util"]/100,
-                                                        backgroundColor: Colors.transparent,
-                                                        strokeCap: StrokeCap.round,
-                                                        color: Theme.of(context).colorScheme.primary,
+                                          Container(
+                                            width: 700/3,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 0, right: 0),
+                                              child: Card(
+                                                clipBehavior: Clip.hardEdge,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(10),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Stack(
+                                                        children: [
+                                                          Padding(
+                                                            padding: const EdgeInsets.all(2),
+                                                            child: CircularProgressIndicator(
+                                                              value: ping.inMilliseconds/1000,
+                                                              backgroundColor: Colors.transparent,
+                                                              strokeCap: StrokeCap.round,
+                                                              color: Theme.of(context).colorScheme.primary,
+                                                            ),
+                                                          ),
+                                                          const Padding(
+                                                            padding: EdgeInsets.all(8.5),
+                                                            child: Icon(Icons.network_ping_rounded),
+                                                          )
+                                                        ],
                                                       ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.all(8.5),
-                                                      child: Icon(Icons.developer_board),
-                                                    )
-                                                  ],
+                                                      const SizedBox(width: 10,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            "Ping",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            "${ping.inMilliseconds.toInt()} ms",
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(width: 10,),
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "CPU Load",
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      "${telemetry["util"].toStringAsFixed(2)}%",
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ),
-                                    Container(
-                                      width: 700/3,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 0, right: 0),
-                                        child: Card(
-                                          clipBehavior: Clip.hardEdge,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(2),
-                                                      child: CircularProgressIndicator(
-                                                        value: (telemetry["temp"] - 20)/60,
-                                                        backgroundColor: Colors.transparent,
-                                                        strokeCap: StrokeCap.round,
-                                                        color: Theme.of(context).colorScheme.primary,
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 700/3,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 0, right: 0),
+                                              child: Card(
+                                                clipBehavior: Clip.hardEdge,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(10),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Stack(
+                                                        children: [
+                                                          Padding(
+                                                            padding: const EdgeInsets.all(2.5),
+                                                            child: CircularProgressIndicator(
+                                                              value: telemetry["util"]/100,
+                                                              backgroundColor: Colors.transparent,
+                                                              strokeCap: StrokeCap.round,
+                                                              color: Theme.of(context).colorScheme.primary,
+                                                            ),
+                                                          ),
+                                                          const Padding(
+                                                            padding: EdgeInsets.all(8.5),
+                                                            child: Icon(Icons.developer_board),
+                                                          )
+                                                        ],
                                                       ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.all(8.5),
-                                                      child: Icon(Icons.thermostat_rounded),
-                                                    )
-                                                  ],
+                                                      const SizedBox(width: 10,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            "CPU Load",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            "${telemetry["util"].toStringAsFixed(2)}%",
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(width: 10,),
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "CPU Temperature",
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      "${telemetry["temp"].toStringAsFixed(2)}°",
-                                                      style: const TextStyle(
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 700/3,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 0),
-                                        child: Card(
-                                          clipBehavior: Clip.hardEdge,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(2),
-                                                      child: CircularProgressIndicator(
-                                                        value: mempercent/100,
-                                                        backgroundColor: Colors.transparent,
-                                                        strokeCap: StrokeCap.round,
-                                                        color: Theme.of(context).colorScheme.primary,
+                                          Container(
+                                            width: 700/3,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(left: 0, right: 0),
+                                              child: Card(
+                                                clipBehavior: Clip.hardEdge,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(10),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      Stack(
+                                                        children: [
+                                                          Padding(
+                                                            padding: const EdgeInsets.all(2),
+                                                            child: CircularProgressIndicator(
+                                                              value: (telemetry["temp"] - 20)/60,
+                                                              backgroundColor: Colors.transparent,
+                                                              strokeCap: StrokeCap.round,
+                                                              color: Theme.of(context).colorScheme.primary,
+                                                            ),
+                                                          ),
+                                                          const Padding(
+                                                            padding: EdgeInsets.all(8.5),
+                                                            child: Icon(Icons.thermostat_rounded),
+                                                          )
+                                                        ],
                                                       ),
-                                                    ),
-                                                    const Padding(
-                                                      padding: EdgeInsets.all(8.5),
-                                                      child: Icon(Icons.memory),
-                                                    )
-                                                  ],
+                                                      const SizedBox(width: 10,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            "CPU Temperature",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            "${telemetry["temp"].toStringAsFixed(2)}°",
+                                                            style: const TextStyle(
+                                                              fontSize: 16,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(width: 10,),
-                                                Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "RAM Usage",
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                        "${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)"
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                          Container(
+                                            width: 700/3,
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 0),
+                                              child: Card(
+                                                clipBehavior: Clip.hardEdge,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(10),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      Stack(
+                                                        children: [
+                                                          Padding(
+                                                            padding: const EdgeInsets.all(2),
+                                                            child: CircularProgressIndicator(
+                                                              value: mempercent/100,
+                                                              backgroundColor: Colors.transparent,
+                                                              strokeCap: StrokeCap.round,
+                                                              color: Theme.of(context).colorScheme.primary,
+                                                            ),
+                                                          ),
+                                                          const Padding(
+                                                            padding: EdgeInsets.all(8.5),
+                                                            child: Icon(Icons.memory),
+                                                          )
+                                                        ],
+                                                      ),
+                                                      const SizedBox(width: 10,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            "RAM Usage",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight: FontWeight.bold
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                              "${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)"
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                    )
-                                  ],
+                                    ],
                                 ),
                                 headerLine("Links", 11),
                                 Row(

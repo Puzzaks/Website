@@ -1,68 +1,130 @@
 {
     "name": "Puzzak's page",
     "short_name": "Puzzak's",
-    "start_url": ".",
+    "id": "/",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "Puzzak.Page 2.0",
+    "display_override": [
+        "window-controls-overlay",
+        "standalone",
+        "browser"
+    ],
+    "background_color": "#1d1b20",
+    "theme_color": "#1d1b20",
+    "description": "Welcome to my homepage!",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "lang": "en",
+    "categories": ["entertainment", "social", "personalization"],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "screenshots" : [
+        {
+            "src": "scr_mobile_dark.png",
+            "sizes": "1082x2402",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Mobile Dark Theme Screenshot"
+        },
+        {
+            "src": "scr_desktop_dark.png",
+            "sizes": "2360x1640",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Desktop Dark Theme Screenshot"
+        },
+        {
+            "src": "scr_mobile_light.png",
+            "sizes": "1082x2402",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Mobile Light Theme Screenshot"
+        },
+        {
+            "src": "scr_desktop_light.png",
+            "sizes": "2360x1640",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Desktop Light Theme Screenshot"
+        }
+    ],
+    "related_applications": [
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=page.puzzak.ptk",
+            "id": "page.puzzak.ptk"
+        },
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=page.puzzak.mcplayer",
+            "id": "page.puzzak.mcplayer"
+        },
+        {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=page.puzzak.fractals",
+            "id": "page.puzzak.fractals"
+        }
+    ],
+    "launch_handler": {
+        "client_mode": ["focus-existing", "auto"]
+    },
+    "start_url": "https://puzzak.page",
+    "scope": "https://puzzak.page",
+    "handle_links": "preferred",
+    "scope_extensions": [
+        {"origin": "*.puzzak.page"}
+    ],
     "icons": [
         {
-            "src": "icons/android-icon-36x36.png",
-            "sizes": "36x36",
+            "src": "favicon-16x16.png",
+            "sizes": "16x16",
             "type": "image/png",
-            "density": "0.75"
+            "purpose": "any"
         },
         {
-            "src": "icons/android-icon-48x48.png",
+            "src": "favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "android-icon-48x48.png",
             "sizes": "48x48",
             "type": "image/png",
-            "density": "1.0"
+            "purpose": "any"
         },
         {
-            "src": "icons/android-icon-72x72.png",
+            "src": "android-icon-72x72.png",
             "sizes": "72x72",
             "type": "image/png",
-            "density": "1.5"
+            "purpose": "any"
         },
         {
-            "src": "icons/android-icon-96x96.png",
+            "src": "android-icon-96x96.png",
             "sizes": "96x96",
             "type": "image/png",
-            "density": "2.0"
+            "purpose": "any"
         },
         {
-            "src": "icons/android-icon-144x144.png",
+            "src": "android-icon-144x144.png",
             "sizes": "144x144",
             "type": "image/png",
-            "density": "3.0"
+            "purpose": "any"
         },
         {
-            "src": "icons/android-icon-192x192.png",
+            "src": "android-icon-192x192.png",
             "sizes": "192x192",
             "type": "image/png",
-            "density": "4.0"
+            "purpose": "any"
         },
         {
-            "src": "icons/android-icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/favicon.png",
+            "src": "favicon.png",
             "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/android-icon-192x192.png",
-            "sizes": "192x192",
             "type": "image/png",
-            "purpose": "maskable"
+            "purpose": "any"
         },
         {
-            "src": "icons/favicon.png",
+            "src": "favicon.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
