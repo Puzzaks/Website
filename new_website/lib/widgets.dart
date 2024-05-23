@@ -1,6 +1,7 @@
 
 import 'dart:core';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Widget linkCard(String title, String subtitle, String url, Icon icon, [double width=350]){
@@ -53,6 +54,57 @@ Widget linkCard(String title, String subtitle, String url, Icon icon, [double wi
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
+  return Container(
+    width: width,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Card(
+        clipBehavior: Clip.hardEdge,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  left:10, right:10, bottom:5
+                ),
+                child: SvgPicture.asset(
+                  'rusnya/$icon.svg',
+                  height: 26,
+                  color: color,
+                ),
+              ),
+              Container(
+                width: width-104,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    Text(
+                      amount.toString(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),

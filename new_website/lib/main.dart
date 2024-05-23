@@ -4,6 +4,7 @@ import 'dart:core';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:new_website/widgets.dart';
 import 'package:http/http.dart' as http;
@@ -185,7 +186,7 @@ class WebMainState extends State<WebMain> {
                                         children: [
                                           Padding(
                                             padding: EdgeInsets.only(left: 15, right: 20),
-                                            child: Icon(Icons.person_outline_rounded),
+                                            child: Icon(Icons.person_rounded),
                                           ),
                                           Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -843,377 +844,68 @@ class WebMainState extends State<WebMain> {
                               ):
                               Column(
                                 children: [
-                                  Container(
-                                    width: scaffoldWidth,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                                      child: Card(
-                                        clipBehavior: Clip.hardEdge,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              const Padding(
-                                                padding: EdgeInsets.only(left: 15, right: 20),
-                                                child: Icon(Icons.timer_outlined),
-                                              ),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "Booted ${formattedUptime.split("\n(")[1].split(")")[0]}",
-                                                    style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.bold
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "Since ${formattedUptime.split("\n")[0]}",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                    ),
-                                                  )
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                  rusnyaCard(
+                                      "Personnel",
+                                      rusnya["personnel_units"],
+                                      "Personnel",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
                                   ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        width: scaffoldWidth/2,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(left: 10, right: 0),
-                                          child: Card(
-                                            clipBehavior: Clip.hardEdge,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Stack(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(2.5),
-                                                        child: CircularProgressIndicator(
-                                                          value: telemetry["netspd"]["in"]/125000000,
-                                                          backgroundColor: Colors.transparent,
-                                                          strokeCap: StrokeCap.round,
-                                                          color: Theme.of(context).colorScheme.primary,
-                                                        ),
-                                                      ),
-                                                      const Padding(
-                                                        padding: EdgeInsets.all(8.5),
-                                                        child: Icon(Icons.download_rounded),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  const SizedBox(width: 10,),
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      const Text(
-                                                        "Download",
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        formatNetworkSpeed(telemetry["netspd"]["in"]),
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        width: scaffoldWidth/2,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(left: 0, right: 10),
-                                          child: Card(
-                                            clipBehavior: Clip.hardEdge,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Stack(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(2.5),
-                                                        child: CircularProgressIndicator(
-                                                          value: telemetry["netspd"]["out"]/125000000,
-                                                          backgroundColor: Colors.transparent,
-                                                          strokeCap: StrokeCap.round,
-                                                          color: Theme.of(context).colorScheme.primary,
-                                                        ),
-                                                      ),
-                                                      const Padding(
-                                                        padding: EdgeInsets.all(8.5),
-                                                        child: Icon(Icons.upload_rounded),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  const SizedBox(width: 10,),
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      const Text(
-                                                        "Upload",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        formatNetworkSpeed(telemetry["netspd"]["out"]),
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  rusnyaCard(
+                                      "Tanks",
+                                      rusnya["tanks"],
+                                      "tanks",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
                                   ),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: scaffoldWidth/2,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(left: 10, right: 0),
-                                          child: Card(
-                                            clipBehavior: Clip.hardEdge,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Stack(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(2.5),
-                                                        child: CircularProgressIndicator(
-                                                          value: telemetry["util"]/100,
-                                                          backgroundColor: Colors.transparent,
-                                                          strokeCap: StrokeCap.round,
-                                                          color: Theme.of(context).colorScheme.primary,
-                                                        ),
-                                                      ),
-                                                      const Padding(
-                                                        padding: EdgeInsets.all(8.5),
-                                                        child: Icon(Icons.developer_board),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  const SizedBox(width: 10,),
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      const Text(
-                                                        "CPU Load",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "${telemetry["util"].toStringAsFixed(2)}%",
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        width: scaffoldWidth/2,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(left: 0, right: 10),
-                                          child: Card(
-                                            clipBehavior: Clip.hardEdge,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Stack(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(2),
-                                                        child: CircularProgressIndicator(
-                                                          value: (telemetry["temp"] - 20)/60,
-                                                          backgroundColor: Colors.transparent,
-                                                          strokeCap: StrokeCap.round,
-                                                          color: Theme.of(context).colorScheme.primary,
-                                                        ),
-                                                      ),
-                                                      const Padding(
-                                                        padding: EdgeInsets.all(8.5),
-                                                        child: Icon(Icons.thermostat_rounded),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  const SizedBox(width: 10,),
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      const Text(
-                                                        "CPU Temp",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "${telemetry["temp"].toStringAsFixed(2)}°",
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  rusnyaCard(
+                                      "Armored",
+                                      rusnya["armoured_fighting_vehicles"],
+                                      "armored",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
                                   ),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: (scaffoldWidth/5)*3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(left: 10),
-                                          child: Card(
-                                            clipBehavior: Clip.hardEdge,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  Stack(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(2.5),
-                                                        child: CircularProgressIndicator(
-                                                          value: mempercent/100,
-                                                          backgroundColor: Colors.transparent,
-                                                          strokeCap: StrokeCap.round,
-                                                          color: Theme.of(context).colorScheme.primary,
-                                                        ),
-                                                      ),
-                                                      const Padding(
-                                                        padding: EdgeInsets.all(8.5),
-                                                        child: Icon(Icons.memory),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  const SizedBox(width: 10,),
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      const Text(
-                                                        "RAM Usage",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "${((memtotal - memfree) / 1000000).toStringAsFixed(2)}/${(memtotal / 1000000).toStringAsFixed(2)}GB (${mempercent.toStringAsFixed(2)}%)",
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        width: (scaffoldWidth/5)*2,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(left: 0, right: 10),
-                                          child: Card(
-                                            clipBehavior: Clip.hardEdge,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Stack(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.all(2),
-                                                        child: CircularProgressIndicator(
-                                                          value: ping.inMilliseconds/1000,
-                                                          backgroundColor: Colors.transparent,
-                                                          strokeCap: StrokeCap.round,
-                                                          color: Theme.of(context).colorScheme.primary,
-                                                        ),
-                                                      ),
-                                                      const Padding(
-                                                        padding: EdgeInsets.all(8.5),
-                                                        child: Icon(Icons.network_ping_rounded),
-                                                      )
-                                                    ],
-                                                  ),
-                                                  const SizedBox(width: 10,),
-                                                  Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      const Text(
-                                                        "Ping",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "${ping.inMilliseconds.toInt()} ms",
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  rusnyaCard(
+                                      "Artillery",
+                                      rusnya["artillery_systems"],
+                                      "Cannons",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "MLRS / ATGMs & SRBMs",
+                                      "${rusnya["mlrs"]} / ${rusnya["atgm_srbm_systems"]}",
+                                      "Mlrs",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "AA / Spec Vehicles",
+                                      "${rusnya["aa_warfare_systems"]} / ${rusnya["special_military_equip"]}",
+                                      "equipment",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "Planes",
+                                      rusnya["planes"],
+                                      "planes",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "Helicopters",
+                                      rusnya["helicopters"],
+                                      "helicopters",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "Fuel Tanks",
+                                      rusnya["vehicles_fuel_tanks"],
+                                      "cars",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
                                   ),
                                 ],
                               ),
@@ -1250,7 +942,7 @@ class WebMainState extends State<WebMain> {
                                   "LinkedIn",
                                   "Connect with my network",
                                   "https://linkedin.com/in/puzzak",
-                                  const Icon(Icons.people_outline_rounded),
+                                  const Icon(Icons.people_rounded),
                                   scaffoldWidth
                               ),
                               linkCard(
@@ -1368,7 +1060,7 @@ class WebMainState extends State<WebMain> {
                                           children: [
                                             Padding(
                                               padding: EdgeInsets.only(left: 15, right: 20),
-                                              child: Icon(Icons.person_outline_rounded),
+                                              child: Icon(Icons.person_rounded),
                                             ),
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2104,7 +1796,7 @@ class WebMainState extends State<WebMain> {
                                             children: [
                                               Padding(
                                                 padding: EdgeInsets.only(left: 15, right: 20),
-                                                child: Icon(Icons.person_outline_rounded),
+                                                child: Icon(Icons.person_rounded),
                                               ),
                                               Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
