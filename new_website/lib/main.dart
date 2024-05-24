@@ -94,7 +94,8 @@ class WebMainState extends State<WebMain> {
     });
   }
   static final _defaultLightColorScheme = ColorScheme.fromSwatch(
-      primarySwatch: Colors.teal
+      primarySwatch: Colors.teal,
+      backgroundColor: Colors.teal
   );
   ThemeMode mode = ThemeMode.system;
   final MaterialStateProperty<Icon?> thumbIcon = MaterialStateProperty.resolveWith<Icon?>(
