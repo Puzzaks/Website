@@ -873,8 +873,8 @@ class WebMainState extends State<WebMain> {
                                       scaffoldWidth
                                   ),
                                   rusnyaCard(
-                                      "MLRS / ATGMs & SRBMs",
-                                      "${rusnya["mlrs"]} / ${rusnya["atgm_srbm_systems"]}",
+                                      "MLRS",
+                                      rusnya["mlrs"],
                                       "Mlrs",
                                       Theme.of(context).textTheme.bodyMedium?.color,
                                       scaffoldWidth
@@ -904,6 +904,41 @@ class WebMainState extends State<WebMain> {
                                       "Fuel Tanks",
                                       rusnya["vehicles_fuel_tanks"],
                                       "cars",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "Ships",
+                                      rusnya["warships_cutters"],
+                                      "Ships",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "Missiles",
+                                      rusnya["cruise_missiles"],
+                                      "missiles",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "UAVs",
+                                      rusnya["uav_systems"],
+                                      "uav",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "ATGMs & SRBMs",
+                                      rusnya["atgm_srbm_systems"],
+                                      "atgms",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "Submarines",
+                                      rusnya["submarines"],
+                                      "submarine",
                                       Theme.of(context).textTheme.bodyMedium?.color,
                                       scaffoldWidth
                                   ),
