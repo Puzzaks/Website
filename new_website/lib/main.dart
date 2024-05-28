@@ -27,8 +27,12 @@ class WebMainState extends State<WebMain> {
   Duration ping = const Duration(milliseconds: 0);
   Map telemetry = jsonDecode('{"netspd":{"in":0,"out":0},"time":0.0,"temp":0,"util":0,"memo":{"total":"0","avail":"0"},"uptime":0}');
   Map rusnya = {};
-  getTelemetry(){
+  getTelemetryTimer(){
     Timer.periodic(const Duration(seconds: 1), (timer) async {
+      getTelemetry();
+    });
+  }
+  getTelemetry() async {
       startingTimestamp = DateTime.now().millisecondsSinceEpoch.toInt();
       String endpoint = "api.puzzak.page";
       String method = "AIO.php";
@@ -46,10 +50,13 @@ class WebMainState extends State<WebMain> {
       } catch (_) {
         telemetry = jsonDecode('{"netspd":{"in":0,"out":0},"time":0.0,"temp":0,"util":0,"memo":{"total":"1","avail":"1"},"uptime":0}');
       }
+  }
+  getRusnyaTimer(){
+    Timer.periodic(const Duration(minutes: 10), (timer) async {
+      getRusnya();
     });
   }
-  getRusnya(){
-    Timer.periodic(const Duration(seconds: 5), (timer) async {
+  getRusnya() async {
       String endpoint = "russianwarship.rip";
       String method = "api/v2/statistics/latest";
       final response = await http.get(
@@ -59,9 +66,7 @@ class WebMainState extends State<WebMain> {
       );
       setState(() {
         rusnya = jsonDecode(response.body)["data"]["stats"];
-        print(rusnya);
       });
-    });
   }
   String formatNetworkSpeed(int speed) {
     if (speed < 1024) {
@@ -91,6 +96,8 @@ class WebMainState extends State<WebMain> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getTelemetry();
       getRusnya();
+      getTelemetryTimer();
+      getRusnyaTimer();
     });
   }
   static final _defaultLightColorScheme = ColorScheme.fromSwatch(
@@ -110,7 +117,6 @@ class WebMainState extends State<WebMain> {
       primarySwatch: Colors.teal,
       brightness: Brightness.dark,
       backgroundColor: Color.fromRGBO(29, 27, 32, 1),
-      cardColor: Color.fromRGBO(29, 27, 32, 1)
   );
   @override
   Widget build(BuildContext context) {

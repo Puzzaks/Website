@@ -45,13 +45,14 @@
   <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
   <meta name="theme-color" content="#1d1b20">
   <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/flutter_service_worker.js");
-      });
-    }
-    // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = null;
+    window.flutterWebRenderer = 'canvaskit';
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/flutter_service_worker.js");
+        });
+      }
+      // The value below is injected by flutter build, do not touch.
+      const serviceWorkerVersion = null;
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
