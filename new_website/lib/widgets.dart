@@ -64,7 +64,7 @@ Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
   return Container(
     width: width,
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.symmetric(horizontal: width==350?0:width==700?0:10),
       child: Card(
         clipBehavior: Clip.hardEdge,
         child: Padding(
@@ -84,7 +84,7 @@ Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
                 ),
               ),
               Container(
-                width: width-104,
+                width: width==350?width-75:width==700?width-74:width-104,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -112,7 +112,7 @@ Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
   );
 }
 
-Widget headerLine(String title, int count, [double width=680]){
+Widget headerLine(String title, int count, [Color color=Colors.white, double width=680]){
   return Padding(
       padding: EdgeInsets.only(
         left: 15,
@@ -127,17 +127,17 @@ Widget headerLine(String title, int count, [double width=680]){
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 32,
-                  color: Colors.teal,
+                  color: color,
                   fontWeight: FontWeight.w100
               ),
             ),
             Text(
               count.toString(),
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 32,
-                  color: Colors.teal,
+                  color: color,
                   fontWeight: FontWeight.w100
               ),
             )

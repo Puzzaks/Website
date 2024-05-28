@@ -173,7 +173,7 @@ class WebMainState extends State<WebMain> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              headerLine("About", 3, scaffoldWidth-30),
+                              headerLine("About", 3, mode == ThemeMode.dark?Colors.teal:Colors.white, scaffoldWidth-30),
                               Container(
                                 width: scaffoldWidth,
                                 child: const Padding(
@@ -311,7 +311,7 @@ class WebMainState extends State<WebMain> {
                                   ),
                                 ),
                               ),
-                              headerLine("Telemetry", telemetry["uptime"] == 0?1:7, scaffoldWidth-30),
+                              headerLine("Telemetry", telemetry["uptime"] == 0?1:7, mode == ThemeMode.dark?Colors.teal:Colors.white, scaffoldWidth-30),
                               telemetry["uptime"] == 0?Container(
                                 width: scaffoldWidth,
                                 child: Padding(
@@ -765,81 +765,43 @@ class WebMainState extends State<WebMain> {
                                   ),
                                 ],
                               ),
-                              headerLine("Russian Casualties", rusnya.isEmpty?1:7, scaffoldWidth-30),
+                              headerLine("Russian Casualties", rusnya.isEmpty?1:15, mode == ThemeMode.dark?Colors.teal:Colors.white, scaffoldWidth-30),
                               rusnya.isEmpty?Container(
                                 width: scaffoldWidth,
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   child: Card(
-                                      color: Theme.of(context).colorScheme.errorContainer,
                                       clipBehavior: Clip.hardEdge,
-                                      child: ExpansionTileTheme(
-                                          data: const ExpansionTileThemeData(tilePadding: EdgeInsets.symmetric(vertical: 5, horizontal: 15)),
-                                          child: Theme(
-                                              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                                              child: ExpansionTile(
-                                                leading: Icon(Icons.error_outline_rounded),
-                                                iconColor: Theme.of(context).textTheme.bodyMedium?.color,
-                                                title: Text(
-                                                  "Disconnected from the server!",
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold
-                                                  ),
+                                      child: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child:Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                    padding: EdgeInsets.only(left:10, right:15),
+                                                    child:Icon(Icons.cloud_download_rounded)
                                                 ),
-                                                subtitle: Text(
-                                                  "Server is offline, expand to read more.",
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 10),
-                                                    child: Container(
-                                                      width: scaffoldWidth,
-                                                      child: Text(
-                                                        "We're currently unable to connect to the server. This is likely due to recent russian terroristic bombardments on Ukraine's social infrastructure.\nYou can learn more about how YOU can help Ukraine or just check server status in Telegram using button below.",
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "Loading casualties",
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.bold
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "Hold on, loading russian casualties data.",
                                                         style: const TextStyle(
                                                           fontSize: 14,
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 10),
-                                                    child: Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        TextButton(
-                                                            onPressed: (){
-                                                              launchUrl(Uri.parse("https://t.me/PuzzakServer"), mode: LaunchMode.externalApplication);
-                                                            },
-                                                            child: Text(
-                                                              "Server Status",
-                                                              style: TextStyle(
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Theme.of(context).textTheme.bodyMedium?.color
-                                                              ),
-                                                            )
-                                                        ),
-                                                        TextButton(
-                                                            onPressed: (){
-                                                              launchUrl(Uri.parse("https://war.ukraine.ua/support-ukraine/"), mode: LaunchMode.externalApplication);
-                                                            },
-                                                            child: Text(
-                                                              "Help Ukraine",
-                                                              style: TextStyle(
-                                                                  fontWeight: FontWeight.bold,
-                                                                  color: Theme.of(context).textTheme.bodyMedium?.color
-                                                              ),
-                                                            )
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              )))
+                                                    ]
+                                                )
+                                              ]
+                                          )
+                                      )
                                   ),
                                 ),
                               ):
@@ -881,8 +843,15 @@ class WebMainState extends State<WebMain> {
                                       scaffoldWidth
                                   ),
                                   rusnyaCard(
-                                      "AA / Spec Vehicles",
-                                      "${rusnya["aa_warfare_systems"]} / ${rusnya["special_military_equip"]}",
+                                      "Anti-Air",
+                                      rusnya["aa_warfare_systems"],
+                                      "aa",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      scaffoldWidth
+                                  ),
+                                  rusnyaCard(
+                                      "Spec Vehicles",
+                                      rusnya["special_military_equip"],
                                       "equipment",
                                       Theme.of(context).textTheme.bodyMedium?.color,
                                       scaffoldWidth
@@ -945,7 +914,7 @@ class WebMainState extends State<WebMain> {
                                   ),
                                 ],
                               ),
-                              headerLine("Links", 11, scaffoldWidth-30),
+                              headerLine("Links", 11, mode == ThemeMode.dark?Colors.teal:Colors.white, scaffoldWidth-30),
                               linkCard(
                                   "Threads",
                                   "Follow my apps development",
@@ -1023,7 +992,7 @@ class WebMainState extends State<WebMain> {
                                   const Icon(Icons.privacy_tip_outlined),
                                   scaffoldWidth
                               ),
-                              headerLine("Projects", 3, scaffoldWidth-30),
+                              headerLine("Projects", 3, mode == ThemeMode.dark?Colors.teal:Colors.white, scaffoldWidth-30),
                               Container(
                                 width: scaffoldWidth,
                                 child: SingleChildScrollView(
@@ -1082,7 +1051,7 @@ class WebMainState extends State<WebMain> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              headerLine("About", 3),
+                              headerLine("About", 3, mode == ThemeMode.dark?Colors.teal:Colors.white),
                               Row(
                                 children: [
                                   Container(
@@ -1218,7 +1187,7 @@ class WebMainState extends State<WebMain> {
                                   ),
                                 ),
                               ),
-                              headerLine("Telemetry", telemetry["uptime"] == 0?1:7),
+                              headerLine("Telemetry", telemetry["uptime"] == 0?1:7, mode == ThemeMode.dark?Colors.teal:Colors.white),
                               telemetry["uptime"] == 0?Container(
                                 width: 700,
                                 child: Padding(
@@ -1664,7 +1633,184 @@ class WebMainState extends State<WebMain> {
                                         ),
                                       ],
                                   ),
-                              headerLine("Links", 11),
+                              headerLine("Russian Casualties", rusnya.isEmpty?1:15, mode == ThemeMode.dark?Colors.teal:Colors.white),
+                              rusnya.isEmpty?Container(
+                                width: 700,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(0),
+                                  child: Card(
+                                      clipBehavior: Clip.hardEdge,
+                                      child: Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child:Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                    padding: EdgeInsets.only(left:10, right:15),
+                                                    child:Icon(Icons.cloud_download_rounded)
+                                                ),
+                                                Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "Loading casualties",
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.bold
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "Hold on, loading russian casualties data.",
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ]
+                                                )
+                                              ]
+                                          )
+                                      )
+                                  ),
+                                ),
+                              ):
+                              Column(
+                                children: [
+                                  rusnyaCard(
+                                      "Personnel",
+                                      rusnya["personnel_units"],
+                                      "Personnel",
+                                      Theme.of(context).textTheme.bodyMedium?.color,
+                                      700
+                                  ),
+                                  Row(
+                                      children: [
+                                        rusnyaCard(
+                                            "Missiles",
+                                            rusnya["cruise_missiles"],
+                                            "missiles",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                        rusnyaCard(
+                                            "UAVs",
+                                            rusnya["uav_systems"],
+                                            "uav",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                    ]
+                                  ),
+                                  Row(
+                                      children: [
+                                        rusnyaCard(
+                                            "Tanks",
+                                            rusnya["tanks"],
+                                            "tanks",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                        rusnyaCard(
+                                            "Armored",
+                                            rusnya["armoured_fighting_vehicles"],
+                                            "armored",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                      ]
+                                  ),
+                                  Row(
+                                      children: [
+                                        rusnyaCard(
+                                            "MLRS",
+                                            rusnya["mlrs"],
+                                            "Mlrs",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                        rusnyaCard(
+                                            "Artillery",
+                                            rusnya["artillery_systems"],
+                                            "Cannons",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                      ]
+                                  ),
+                                  Row(
+                                      children: [
+                                        rusnyaCard(
+                                            "Anti-Air",
+                                            rusnya["aa_warfare_systems"],
+                                            "aa",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                        rusnyaCard(
+                                            "Spec Vehicles",
+                                            rusnya["special_military_equip"],
+                                            "equipment",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                      ]
+                                  ),
+                                  Row(
+                                      children: [
+                                        rusnyaCard(
+                                            "Planes",
+                                            rusnya["planes"],
+                                            "planes",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                        rusnyaCard(
+                                            "Helicopters",
+                                            rusnya["helicopters"],
+                                            "helicopters",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                      ]
+                                  ),
+                                  Row(
+                                    children: [
+                                      rusnyaCard(
+                                          "Submarines",
+                                          rusnya["submarines"],
+                                          "submarine",
+                                          Theme.of(context).textTheme.bodyMedium?.color,
+                                          350
+                                      ),
+                                      rusnyaCard(
+                                          "Ships",
+                                          rusnya["warships_cutters"],
+                                          "Ships",
+                                          Theme.of(context).textTheme.bodyMedium?.color,
+                                          350
+                                      ),
+                                    ]
+                                  ),
+                                  Row(
+                                      children:[
+                                        rusnyaCard(
+                                            "Fuel Tanks",
+                                            rusnya["vehicles_fuel_tanks"],
+                                            "cars",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                        rusnyaCard(
+                                            "ATGMs & SRBMs",
+                                            rusnya["atgm_srbm_systems"],
+                                            "atgms",
+                                            Theme.of(context).textTheme.bodyMedium?.color,
+                                            350
+                                        ),
+                                      ]
+                                  ),
+                                ],
+                              ),
+                              headerLine("Links", 11, mode == ThemeMode.dark?Colors.teal:Colors.white),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -1818,7 +1964,7 @@ class WebMainState extends State<WebMain> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                headerLine("About", 3),
+                                headerLine("About", 3, mode == ThemeMode.dark?Colors.teal:Colors.white),
                                 Row(
                                   children: [
                                     Container(
@@ -1954,7 +2100,7 @@ class WebMainState extends State<WebMain> {
                                     ),
                                   ),
                                 ),
-                                headerLine("Telemetry", telemetry["uptime"] == 0?1:7),
+                                headerLine("Telemetry", telemetry["uptime"] == 0?1:7, mode == ThemeMode.dark?Colors.teal:Colors.white),
                                 telemetry["uptime"] == 0?Container(
                                   width: 700,
                                   child: Padding(
@@ -2400,7 +2546,184 @@ class WebMainState extends State<WebMain> {
                                       ),
                                     ],
                                 ),
-                                headerLine("Links", 11),
+                                headerLine("Russian Casualties", rusnya.isEmpty?1:15, mode == ThemeMode.dark?Colors.teal:Colors.white),
+                                rusnya.isEmpty?Container(
+                                  width: 700,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(0),
+                                    child: Card(
+                                        clipBehavior: Clip.hardEdge,
+                                        child: Padding(
+                                            padding: EdgeInsets.all(10),
+                                            child:Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Padding(
+                                                      padding: EdgeInsets.only(left:10, right:15),
+                                                      child:Icon(Icons.cloud_download_rounded)
+                                                  ),
+                                                  Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          "Loading casualties",
+                                                          style: const TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.bold
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "Hold on, loading russian casualties data.",
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ]
+                                                  )
+                                                ]
+                                            )
+                                        )
+                                    ),
+                                  ),
+                                ):
+                                Column(
+                                  children: [
+                                    rusnyaCard(
+                                        "Personnel",
+                                        rusnya["personnel_units"],
+                                        "Personnel",
+                                        Theme.of(context).textTheme.bodyMedium?.color,
+                                        700
+                                    ),
+                                    Row(
+                                        children: [
+                                          rusnyaCard(
+                                              "Missiles",
+                                              rusnya["cruise_missiles"],
+                                              "missiles",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                          rusnyaCard(
+                                              "UAVs",
+                                              rusnya["uav_systems"],
+                                              "uav",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                        ]
+                                    ),
+                                    Row(
+                                        children: [
+                                          rusnyaCard(
+                                              "Tanks",
+                                              rusnya["tanks"],
+                                              "tanks",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                          rusnyaCard(
+                                              "Armored",
+                                              rusnya["armoured_fighting_vehicles"],
+                                              "armored",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                        ]
+                                    ),
+                                    Row(
+                                        children: [
+                                          rusnyaCard(
+                                              "MLRS",
+                                              rusnya["mlrs"],
+                                              "Mlrs",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                          rusnyaCard(
+                                              "Artillery",
+                                              rusnya["artillery_systems"],
+                                              "Cannons",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                        ]
+                                    ),
+                                    Row(
+                                        children: [
+                                          rusnyaCard(
+                                              "Anti-Air",
+                                              rusnya["aa_warfare_systems"],
+                                              "aa",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                          rusnyaCard(
+                                              "Spec Vehicles",
+                                              rusnya["special_military_equip"],
+                                              "equipment",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                        ]
+                                    ),
+                                    Row(
+                                        children: [
+                                          rusnyaCard(
+                                              "Planes",
+                                              rusnya["planes"],
+                                              "planes",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                          rusnyaCard(
+                                              "Helicopters",
+                                              rusnya["helicopters"],
+                                              "helicopters",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                        ]
+                                    ),
+                                    Row(
+                                        children: [
+                                          rusnyaCard(
+                                              "Submarines",
+                                              rusnya["submarines"],
+                                              "submarine",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                          rusnyaCard(
+                                              "Ships",
+                                              rusnya["warships_cutters"],
+                                              "Ships",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                        ]
+                                    ),
+                                    Row(
+                                        children:[
+                                          rusnyaCard(
+                                              "Fuel Tanks",
+                                              rusnya["vehicles_fuel_tanks"],
+                                              "cars",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                          rusnyaCard(
+                                              "ATGMs & SRBMs",
+                                              rusnya["atgm_srbm_systems"],
+                                              "atgms",
+                                              Theme.of(context).textTheme.bodyMedium?.color,
+                                              350
+                                          ),
+                                        ]
+                                    ),
+                                  ],
+                                ),
+                                headerLine("Links", 11, mode == ThemeMode.dark?Colors.teal:Colors.white),
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
