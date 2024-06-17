@@ -117,6 +117,7 @@ class WebMainState extends State<WebMain> {
       primarySwatch: Colors.teal,
       brightness: Brightness.dark,
       backgroundColor: Color.fromRGBO(29, 27, 32, 1),
+      cardColor: Colors.teal.withGreen(40).withBlue(45)
   );
   @override
   Widget build(BuildContext context) {

@@ -1,0 +1,1325 @@
+[
+        [
+            {
+                "type": "text",
+                "data": "Point of this experiment was to test the capabilities of the Raspberry Pi 4B I\'ve recently bought, together with trying something new."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "It wasn’t my first choice, but I always wanted to make a stream which will need no input from my side to work. Software-generated stream. Autostream."
+            }
+        ],
+        [
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Table of Contents",
+                    "id": ""
+                }
+            },
+            {
+                "type": "list",
+                "data": [
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Fractals",
+                            "url": "#fractals"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Backbones",
+                            "url": "#backbones"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Generating FFMPEG",
+                            "url": "#generating-ffmpeg"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Streaming FFMPEG",
+                            "url": "#streaming-ffmpeg"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Multi-streaming",
+                            "url": "#multistreaming"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Telegram streaming",
+                            "url": "#telegram-streaming"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Youtube streaming",
+                            "url": "#youtube-streaming"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Twitch streaming",
+                            "url": "#twitch-streaming"
+                        }
+                    },
+                    {
+                        "type": "link",
+                        "data": {
+                            "text": "Facebook streaming",
+                            "url": "#facebook-streaming"
+                        }
+                    }
+                ]
+            }
+        ],
+        [
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Fractals",
+                    "id": "fractals"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "According to "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "Wikipedia",
+                    "url": "https://en.wikipedia.org/wiki/Fractal"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", Fractal is a geometric shape containing detailed structure at arbitrarily small scales."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": " Translating this to understandable words, for us, it is a geometrical shape, described by mathematical equation and nearly infinite detailed when zooming in. Generating fractals is quite the task, but using FFMPEG\'s built in capabilities we can livestream fractal via RTMP to YouTube, as shown in video below:"
+            },
+            {
+                "type": "spoiler",
+                "title": "Fractal demo",
+                "data": [
+                    {
+                        "type": "youtube",
+                        "data": {
+                            "embed": "idYSeGcDaBc"
+                        }
+                    }
+                ]
+            }
+        ],
+        [
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Backbones",
+                    "id": "backbones"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Backbones are just set of files made to be background in my videos. Raspberry Pi 4B doesn\'t have enough juice to generate 1080p@60 fractal, so I had to shrink fractal to smaller window and fill background with static image."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "FFMPEG lets you to mix and match images and videos, position them anywhere and overlay as you want them to be. But everything comes at a cost of perfomance, so priority task here is to make everything not just sharp as razorblade, but to be (haha) smooth like butter, in same time."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "I have created set of images (they are just an iterations of my design), which you can see here. That\'s what \"backboneX.png\" is in my code:"
+            },
+            {
+                "type": "spoiler",
+                "title": "Backbones images",
+                "data": [
+                    {
+                        "type": "image",
+                        "data": {
+                            "embed": "assets-000/backbone5.png"
+                        }
+                    },
+                    {
+                        "type": "image",
+                        "data": {
+                            "embed": "assets-000/backbone4.png"
+                        }
+                    },
+                    {
+                        "type": "image",
+                        "data": {
+                            "embed": "assets-000/backbone3.png"
+                        }
+                    },
+                    {
+                        "type": "image",
+                        "data": {
+                            "embed": "assets-000/backbone2.png"
+                        }
+                    },
+                    {
+                        "type": "image",
+                        "data": {
+                            "embed": "assets-000/backbone.png"
+                        }
+                    }
+                ]
+            }
+        ],
+        [
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Generating FFMPEG",
+                    "id": "generating-ffmpeg"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "FFMPEG",
+                    "url": "https://ffmpeg.org/"
+                }
+            },
+            {
+                "type": "text",
+                "data": " is a very powerfull instrument built for recording, converting and streaming audio and video. Using it, I was able to stream content without any input - this it why it is \"Software-generated stream\", there are nothing more than software. This is where I spent most time, setting up FFMPEG."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "First thing worth mentioning is that FFMPEG has ability to show locally content that you are creating, using "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "FFPLAY",
+                    "url": "https://ffmpeg.org/ffplay.html"
+                }
+            },
+            {
+                "type": "text",
+                "data": ". Also, piece of advice is to use latest WSL if you are trying this locally - it can show graphic windows on top of terminal."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "In this case, I gave FFMPEG task to play "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "1",
+                    "text": "Mandelbrot set"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", with "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "2",
+                    "text": "640x480 resolution"
+                }
+            },
+            {
+                "type": "text",
+                "data": " at "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "3",
+                    "text": "60FPS"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "4",
+                    "text": "coloring it by iterations"
+                }
+            },
+            {
+                "type": "text",
+                "data": " and giving also "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "5",
+                    "text": "X and Y position"
+                }
+            },
+            {
+                "type": "text",
+                "data": ". My prompt was:"
+            },
+            {
+                "type": "code",
+                "copy": "ffplay -f lavfi -i mandelbrot=s=640x480:rate=60:outer=iteration_count:start_x=0.2550075:start_y=-0.495006",
+                "data": [
+                    {
+                        "tabs": "0",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "ffplay -f lavfi -i"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "1",
+                                "text": "mandelbrot"
+                            },
+                            {
+                                "annotation": "false",
+                                "text": "=:"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "s="
+                            },
+                            {
+                                "annotation": "2",
+                                "text": "640x480"
+                            },
+                            {
+                                "annotation": "false",
+                                "text": ":"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "rate="
+                            },
+                            {
+                                "annotation": "3",
+                                "text": "60"
+                            },
+                            {
+                                "annotation": "false",
+                                "text": ":"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "outer="
+                            },
+                            {
+                                "annotation": "4",
+                                "text": "iteration_count"
+                            },
+                            {
+                                "annotation": "false",
+                                "text": ":"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "5",
+                                "text": "start_x=0.2550075"
+                            },
+                            {
+                                "annotation": "false",
+                                "text": ":"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "5",
+                                "text": "start_y=-0.495006"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "data": "You can read "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "documentation",
+                    "url": "https://ffmpeg.org/ffmpeg-all.html#toc-mandelbrot"
+                }
+            },
+            {
+                "type": "text",
+                "data": " about it, and see how does it work here:"
+            },
+            {
+                "type": "spoiler",
+                "title": "FFMPEG FFPLAY demo",
+                "data": [
+                    {
+                        "type": "youtube",
+                        "data": {
+                            "embed": "E_3IPtl3ryI"
+                        }
+                    }
+                ]
+            }
+        ],
+        [
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Streaming FFMPEG",
+                    "id": "streaming-ffmpeg"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Let\'s bump it up a bit. Using same FFMPEG and generate stream, then send it to... Telegram."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Why Telegram? Because it\'s easy, fast and reliable way to livetest your entire setup online. Steps:"
+            },
+            {
+                "type": "list",
+                "data": [
+                    {
+                        "type": "text",
+                        "data": {
+                            "text": "Start livestream in Telegram channel"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "data": {
+                            "text": "Get credentials (server link and key)"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "data": {
+                            "text": "Set up your FFMPEG"
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "data": {
+                            "text": "View your stream!"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "data": "Also, don\'t forget to replace "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "6",
+                    "text": "this part"
+                }
+            },
+            {
+                "type": "text",
+                "data": " with link and "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "7",
+                    "text": "this part"
+                }
+            },
+            {
+                "type": "text",
+                "data": " with token from Telegram!"
+            },
+            {
+                "type": "code",
+                "copy": "ffplay -f lavfi -i mandelbrot=s=640x480:rate=60:outer=iteration_count:start_x=0.2550075:start_y=-0.495006",
+                "data": [
+                    {
+                        "tabs": "0",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "ffmpeg"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-i backbone4.png"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-f lavfi"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-i cellauto=p=@:s=950x540:full=0:rule=18"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-map 0:a?"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-vcodec libx264"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-pix_fmt yuv420p"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-preset veryfast -r 30 -g 60"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-b:v \"7500k\""
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-acodec libmp3lame -ar 44100 -b:a 128k"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-f mpegts - |"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "ffmpeg -f mpegts -i -"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-c copy -f flv \""
+                            },
+                            {
+                                "annotation": "6",
+                                "text": "rtmps://ab1-2.rtmp.t.me/s/"
+                            },
+                            {
+                                "annotation": "7",
+                                "text": "1234567890:1aBCDEfghiJ23klmnOPqrS"
+                            },
+                            {
+                                "annotation": "false",
+                                "text": "\""
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "spoiler",
+                "title": "FFMPEG streaming demo",
+                "data": [
+                    {
+                        "type": "youtube",
+                        "data": {
+                            "embed": "VNLt6zw2Jeg"
+                        }
+                    }
+                ]
+            }
+        ],
+        [
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Multi-streaming",
+                    "id": "multistreaming"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Streaming autogenerated video is cool, but guess what I find even funnier? STREAMING IT TO MULTIPLE SERVICES!"
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "I have found that piping stream to ffplay and then splitting it in halves works pretty good, but splitting stream into tree and more sources makes it a bit unstable at times. So in example shown, stream was split into two."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "I have tried (jump to the section needed) "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "Telegram",
+                    "url": "#telegram-streaming"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "Youtube",
+                    "url": "#youtube-streaming"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "Twitch",
+                    "url": "#twitch-streaming"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "Facebook",
+                    "url": "#facebook-streaming"
+                }
+            },
+            {
+                "type": "text",
+                "data": " - even all of them simultaneously:"
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "(Last 4 lines have URLs for streaming services: "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "8",
+                    "text": "Twitch"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "9",
+                    "text": "Telegram"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "10",
+                    "text": "Youtube"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", "
+            },
+            {
+                "type": "annotation",
+                "data": {
+                    "id": "11",
+                    "text": "Facebook"
+                }
+            },
+            {
+                "type": "text",
+                "data": ")"
+            },
+            {
+                "type": "code",
+                "copy": "ffmpeg -i backbone5.png -f lavfi -i cellauto=p=@:s=950x540:full=0:rule=18 -filter_complex overlay=x=850:y=50[out] -map [out] -map 0:a? -vcodec libx264 -pix_fmt yuv420p -preset veryfast -r 30 -g 60 -b:v \"7500k\" -acodec libmp3lame -ar 44100 -b:a 128k  -f mpegts - | ffmpeg -f mpegts -i - -c copy -f flv \"rtmp://fra05.contribute.live-video.net/app/live_{KEY}\" -c copy -f flv \"rtmps://dc4-1.rtmp.t.me/s/{KEY}\" -c copy -f flv \"rtmps://a.rtmp.youtube.com/live2/{KEY}\" -c copy -f flv \"rtmps://live-api-s.facebook.com:443/rtmp/{KEY}\"",
+                "data": [
+                    {
+                        "tabs": "0",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "ffmpeg"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-i backbone5.png"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-f lavfi"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-i cellauto=p=@:s=950x540:full=0:rule=18"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-filter_complex overlay=x=850:y=50[out]"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-map [out]"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-map 0:a?"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-vcodec libx264"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-pix_fmt yuv420p"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-preset veryfast"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-r 30"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-g 60"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-b:v \"7500k\""
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-acodec libmp3lame"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-ar 44100"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-b:a 128k"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-f mpegts - |"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "0",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "ffmpeg"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-f mpegts"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "-i -"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "8",
+                                "text": "-c copy -f flv \"rtmp://fra05.contribute.live-video.net/app/live_{KEY}\""
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "9",
+                                "text": "-c copy -f flv \"rtmps://dc4-1.rtmp.t.me/s/{KEY}\""
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "10",
+                                "text": "-c copy -f flv \"rtmps://a.rtmp.youtube.com/live2/{KEY}\""
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "2",
+                        "data": [
+                            {
+                                "annotation": "11",
+                                "text": "-c copy -f flv \"rtmps://live-api-s.facebook.com:443/rtmp/{KEY}\""
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "spoiler",
+                "title": "Multi-streaming example",
+                "data": [
+                    {
+                        "type": "image",
+                        "data": {
+                            "embed": "assets-000/multi-stream.jpg"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "data": "Bitrate for each stream appers to be ~3.5MB/s, and while I was trying to stream 4 streams at once, YouTube wasn\'t working for me at all, so there were only 3 streams really (though from my side there were 4...)."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Facebook streaming",
+                    "id": "facebook-streaming"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Facebook appeared to be VERY laggy, dropping framerate to ~5 with baseline of ~30, while every other service had stable 60FPS:"
+            },
+            {
+                "type": "spoiler",
+                "title": "Facebook streaming performance",
+                "data": [
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "11533"
+                        }
+                    },
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "11534"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "text",
+                "data": "You can read how to get credentials for streaming on Facebook on "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "this page",
+                    "url": "https://www.facebook.com/business/help/165076674943644"
+                }
+            },
+            {
+                "type": "text",
+                "data": "."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Youtube streaming",
+                    "id": "youtube-streaming"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Youtube... Just works. I can\'t tell much more, setting up stream is VERY easy, you just need to set stream details, get key and stream URL and just go live. How to do so, you can read "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "here",
+                    "url": "https://support.google.com/youtube/answer/2907883"
+                }
+            },
+            {
+                "type": "text",
+                "data": "."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Performance-wise it is stable and reliable. Also, Youtube for me had smallest delay, but that I cannot confirm."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Twitch streaming",
+                    "id": "twitch-streaming"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "I have most of my experience exactly with Twitch and Telegram, I was streaming for 108 days straight, and gathered some statistics day by day (check out "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "spreadsheet with statistics",
+                    "url": "https://docs.google.com/spreadsheets/d/1fyD1oLGG6WDWtJLUnQ8zLQd3p_AhQxuw61aMDnqPGg8"
+                }
+            },
+            {
+                "type": "text",
+                "data": ")."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Twitch is most friendly to streamer platform (no surprise here, it\'s the platform made solely for streaming), and it is quite easy to set up your stream."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "You can read how to stream with RTMP onto Twitch "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "here",
+                    "url": "https://help.twitch.tv/s/article/twitch-stream-key-faq#FAQ"
+                }
+            },
+            {
+                "type": "text",
+                "data": ". But that\'s quite an easy task, just use list of "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "ingest endpoints",
+                    "url": "https://stream.twitch.tv/ingests/"
+                }
+            },
+            {
+                "type": "text",
+                "data": " to determine best one for you (in my case it was Frankfurt) and just use your stream key as shown below:"
+            },
+            {
+                "type": "code",
+                "copy": "rtmp://waw02.contribute.live-video.net/app/{stream_key}",
+                "data": [
+                    {
+                        "tabs": "0",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "rtmp://"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "fra05.contribute.live-video.net/app/"
+                            }
+                        ]
+                    },
+                    {
+                        "tabs": "1",
+                        "data": [
+                            {
+                                "annotation": "false",
+                                "text": "live_123456789_abcderfgergergergergererg=WGwef0c83trhyRFF"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "spoiler",
+                "title": "Twitch streaming performance",
+                "data": [
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "13627"
+                        }
+                    },
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "12854"
+                        }
+                    },
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "13881"
+                        }
+                    },
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "8960"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "heading",
+                "data": {
+                    "text": "Telegram streaming",
+                    "id": "telegram-streaming"
+                }
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "Telegram stays the fastest and easiest way to test your stream, as well as streaming to channels appeared to me as useful."
+            },
+            {
+                "type": "nl"
+            },
+            {
+                "type": "text",
+                "data": "You can see how to set up Telegram stream "
+            },
+            {
+                "type": "link",
+                "data": {
+                    "text": "here",
+                    "url": "#streaming-ffmpeg"
+                }
+            },
+            {
+                "type": "text",
+                "data": ", and that\'s how it was:"
+            },
+            {
+                "type": "spoiler",
+                "title": "Telegram streaming",
+                "data": [
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "11287"
+                        }
+                    },
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "11225"
+                        }
+                    },
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "11223"
+                        }
+                    },
+                    {
+                        "type": "tgpost",
+                        "data": {
+                            "channel": "Puzzaks",
+                            "post": "11290"
+                        }
+                    }
+                ]
+            }
+        ]
+    ]
