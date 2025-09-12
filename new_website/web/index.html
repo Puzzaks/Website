@@ -45,17 +45,19 @@
   <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
   <meta name="theme-color" content="#1d1b20">
   <script>
+    {{flutter_bootstrap_js}}
+  </script>
+  <script>
     window.flutterWebRenderer = 'canvaskit';
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/flutter_service_worker.js");
         });
       }
-      // The value below is injected by flutter build, do not touch.
-      const serviceWorkerVersion = null;
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+
 </head>
 <body style="background-color: #1d1b20;">
   <script>
@@ -63,7 +65,7 @@
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
+          serviceWorkerVersion: {{flutter_service_worker_version}},
         },
         onEntrypointLoaded: function(engineInitializer) {
           engineInitializer.initializeEngine().then(function(appRunner) {

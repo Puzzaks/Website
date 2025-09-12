@@ -1,0 +1,20 @@
+{
+  "topics": [
+    "development",
+    "travel",
+    "work",
+    "articles",
+    "tech",
+    "general"
+  ],
+  "news": [
+    {
+      "date": 1757704759,
+      "title": "Test news piece",
+      "description": "This thing is test, do not worry",
+      "pic": "test.png",
+      "body": "test.md",
+      "tags": "general, article"
+    }
+  ]
+}

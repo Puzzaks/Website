@@ -57,16 +57,28 @@ class WebMainState extends State<WebMain> {
     });
   }
   getRusnya() async {
-      String endpoint = "russianwarship.rip";
-      String method = "api/v2/statistics/latest";
-      final response = await http.get(
-        Uri.https(
-            endpoint, method
-        ),
-      );
-      setState(() {
-        rusnya = jsonDecode(response.body)["data"]["stats"];
-      });
+    String endpoint = "russianwarship.rip";
+    String method = "api/v2/statistics/latest";
+    final response = await http.get(
+      Uri.https(
+          endpoint, method
+      ),
+    );
+    setState(() {
+      rusnya = jsonDecode(response.body)["data"]["stats"];
+    });
+  }
+  getNews() async {
+    String endpoint = "russianwarship.rip";
+    String method = "api/v2/statistics/latest";
+    final response = await http.get(
+      Uri.https(
+          endpoint, method
+      ),
+    );
+    setState(() {
+      rusnya = jsonDecode(response.body)["data"]["stats"];
+    });
   }
   String formatNetworkSpeed(int speed) {
     if (speed < 1024) {
@@ -98,6 +110,7 @@ class WebMainState extends State<WebMain> {
       getRusnya();
       getTelemetryTimer();
       getRusnyaTimer();
+      getNews();
     });
   }
   static final _defaultLightColorScheme = ColorScheme.fromSwatch(
@@ -166,7 +179,7 @@ class WebMainState extends State<WebMain> {
                 if (nextBirthday.isBefore(now) || nextBirthday.isAtSameMomentAs(now)) {
                   nextBirthday = DateTime(now.year + 1, birthday.month, birthday.day);
                 }
-                int daysLeft = nextBirthday.difference(now).inDays;
+                int daysLeft = nextBirthday.difference(now).inDays - 1;
                 int age = (now.difference(birthday).inDays / 365.25).floor();
 
                 if(scaffoldWidth < 715){
@@ -239,7 +252,7 @@ class WebMainState extends State<WebMain> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "I'm ${(DateTime.now().difference(DateTime.utc(2002, 3, 18)).inDays / 365.25).toStringAsFixed(2)} y.o.",
+                                                "I'm ${((DateTime.now().difference(DateTime.utc(2002, 3, 18)).inDays / 365.25) - 1).toStringAsFixed(2)} y.o.",
                                                 style: const TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold
@@ -392,7 +405,9 @@ class WebMainState extends State<WebMain> {
                                                     ),
                                                   ),
                                                 ],
-                                              )))
+                                              )
+                                          )
+                                      )
                                   ),
                                 ),
                               ):
