@@ -12,7 +12,14 @@
       "date": 1757704759,
       "title": "Test news piece",
       "description": "This thing is test, do not worry",
-      "pic": "test.png",
+      "pic": {
+        "url": "assets/dashboard-project.png",
+        "local": true
+      },
+      "content": {
+        "type": "link",
+        "body": "https://link.puzzak.page/?dashboard"
+      },
       "body": "test.md",
       "tags": "general, article"
     }
