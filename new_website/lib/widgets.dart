@@ -112,7 +112,7 @@ Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
   );
 }
 
-Widget headerLine(String title, int count, [Color color=Colors.white, double width=680]){
+Widget headerLine(String title, int count, [Color color=Colors.teal, double width=680]){
   return Padding(
       padding: EdgeInsets.only(
         left: 15,
