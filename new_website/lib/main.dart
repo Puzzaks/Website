@@ -1,23 +1,17 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:core';
-import 'package:dynamic_color/dynamic_color.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import 'package:new_website/backend.dart';
-import 'package:new_website/widgets.dart';
-import 'package:http/http.dart' as http;
 import 'package:system_theme/system_theme.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'dart:core';
+import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/material.dart';
+import 'package:new_website/backend.dart';
 import 'package:provider/provider.dart';
 
-import 'desktop.dart';
-import 'mobile.dart';
+import 'package:new_website/desktop.dart';
+import 'package:new_website/mobile.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     ChangeNotifierProvider(
       create: (context) => backend(),
@@ -41,37 +35,55 @@ class WebMainState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<backend>(
         builder: (context, backend, child) {
-          backend.context = context;
-          return DynamicColorBuilder(builder: (lightColorScheme, darkColorScheme) {
-            return MaterialApp(
-              title: "Puzzak's",
-              theme: ThemeData(
-                colorScheme: lightColorScheme ?? backend.lt,
-                useMaterial3: true,
+          return MaterialApp(
+            title: "Puzzak's",
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSwatch(
+                  primarySwatch: Colors.teal,
+                  accentColor: Colors.teal,
+                  cardColor: Colors.teal,
+                  backgroundColor: Colors.teal,
+                  errorColor: Colors.orange
               ),
-              darkTheme: ThemeData(
-                colorScheme: darkColorScheme ?? backend.dt,
-                useMaterial3: true,
+              useMaterial3: true,
+              cardColor: Colors.white,
+              iconTheme: IconThemeData(
+                color: Colors.black
+              )
+            ),
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSwatch(
+                  primarySwatch: Colors.teal,
+                  accentColor: Colors.teal,
+                  cardColor: Colors.black,
+                  backgroundColor: Colors.teal,
+                  errorColor: Colors.orange
               ),
-              themeMode: backend.mode,
-              debugShowCheckedModeBanner: false,
-              home: Scaffold(
-                body: SafeArea(
-                  child: LayoutBuilder(
-                    builder: (BuildContext context, BoxConstraints constraints) {
-                      backend.scaffoldWidth = constraints.maxWidth;
-                      backend.scaffoldHeight = constraints.maxHeight;
-                      if(backend.scaffoldWidth < 715){
-                        return MobilePage();
-                      }else{
-                        return DesktopPage();
-                      }
-                    },
-                  ),
+              useMaterial3: true,
+              cardColor: Colors.teal.withValues(alpha: 198),
+                iconTheme: IconThemeData(
+                    color: Colors.white
+                )
+            ),
+            themeMode: backend.mode,
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: SafeArea(
+                child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    backend.context = context;
+                    backend.scaffoldWidth = constraints.maxWidth;
+                    backend.scaffoldHeight = constraints.maxHeight;
+                    if(backend.scaffoldWidth < 1060){
+                      return MobilePage();
+                    }else{
+                      return DesktopPage();
+                    }
+                  },
                 ),
               ),
-            );
-          });
+            ),
+          );
         });
   }
 }

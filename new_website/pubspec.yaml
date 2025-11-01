@@ -9,17 +9,17 @@ dependencies:
   flutter:
     sdk: flutter
   url_launcher: ^6.1.10
-  intl: ^0.18.0
+  intl: ^0.20.2
   dynamic_color: ^1.6.9
   http: ^1.2.1
-  system_theme: ^2.3.1
+  system_theme: 3.1.2
   flutter_svg: ^2.0.10+1
   provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

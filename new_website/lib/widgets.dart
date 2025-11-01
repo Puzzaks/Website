@@ -1,15 +1,17 @@
 
 import 'dart:core';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Widget linkCard(String title, String subtitle, String url, Icon icon, [double width=350]){
+Widget linkCard(String title, String subtitle, String url, Icon icon, BuildContext context, [double width=350]){
   return Container(
     width: width,
     child: Padding(
       padding: EdgeInsets.symmetric(horizontal: width==350?0:width==700?0:10),
       child: Card(
+        color: Theme.of(context).cardColor,
         clipBehavior: Clip.hardEdge,
         child: InkWell(
           onTap: () {
@@ -60,12 +62,13 @@ Widget linkCard(String title, String subtitle, String url, Icon icon, [double wi
     ),
   );
 }
-Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
+Widget rusnyaCard(String title, amount, String icon, color, BuildContext context, [double width=350]){
   return Container(
     width: width,
     child: Padding(
       padding: EdgeInsets.symmetric(horizontal: width==350?0:width==700?0:10),
       child: Card(
+        color: Theme.of(context).cardColor,
         clipBehavior: Clip.hardEdge,
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -80,7 +83,7 @@ Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
                 child: SvgPicture.asset(
                   'rusnya/$icon.svg',
                   height: 26,
-                  color: color,
+                  color: Theme.of(context).iconTheme.color,
                 ),
               ),
               Container(
@@ -112,7 +115,7 @@ Widget rusnyaCard(String title, amount, String icon, color, [double width=350]){
   );
 }
 
-Widget headerLine(String title, int count, [Color color=Colors.teal, double width=680]){
+Widget headerLine(String title, int count, [double width=680, Color color=Colors.white]){
   return Padding(
       padding: EdgeInsets.only(
         left: 15,
@@ -147,10 +150,11 @@ Widget headerLine(String title, int count, [Color color=Colors.teal, double widt
   );
 }
 
-Widget projectCard(Image pic, String title, String subtitle, String action){
+Widget projectCard(Image pic, String title, String subtitle, String action,BuildContext context){
   return Container(
     width: 350,
     child: Card(
+      color: Theme.of(context).cardColor,
       clipBehavior: Clip.hardEdge,
       child: InkWell(
           onTap: () {
@@ -177,13 +181,108 @@ Widget projectCard(Image pic, String title, String subtitle, String action){
                       ),
                     ),
                     Text(
-                      "$subtitle\n\n\n",
+                      "$subtitle",
                       maxLines: 3,
                       style: const TextStyle(
                         fontSize: 16,
                       ),
                     )
                   ],
+                ),
+              ),
+            ],
+          )
+      ),
+    ),
+  );
+}
+Widget newsCardM(Image pic, double www, String title, String subtitle, String action,BuildContext context){
+  return Container(
+    width: www - 30,
+    child: Card(
+      color: Theme.of(context).cardColor,
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+          onTap: () {
+            launchUrl(Uri.parse(action), mode: LaunchMode.externalApplication);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                clipBehavior: Clip.hardEdge,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: pic,
+              ),
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    Text(
+                      "$subtitle",
+                      maxLines: 3,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )
+      ),
+    ),
+  );
+}
+Widget newsCard(Image pic, String title, String subtitle, String action,BuildContext context){
+  return Container(
+    width: 700,
+    child: Card(
+      color: Theme.of(context).cardColor,
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+          onTap: () {
+            launchUrl(Uri.parse(action), mode: LaunchMode.externalApplication);
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                clipBehavior: Clip.hardEdge,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                child: pic,
+              ),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: Container(
+                  width: 310,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      Text(
+                        "$subtitle",
+                        maxLines: 3,
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ],
