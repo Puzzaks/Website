@@ -54,6 +54,20 @@
   "projects": [
     {
       "date": 1757704759,
+      "title": "Conway's Game of Life",
+      "description": "Cellular automata for Android, with 10K+ downloads.",
+      "pic": {
+        "url": "assets/indev.jpg",
+        "local": true
+      },
+      "content": {
+        "type": "link",
+        "body": "https://play.google.com/store/apps/details?id=page.puzzak.gol"
+      },
+      "tags": "general, article"
+    },
+    {
+      "date": 1757704759,
       "title": "Autostreaming project",
       "description": "Real-time software-generated videofeed, using FFMPEG on Raspberry Pi with 96.66% uptime.",
       "pic": {
