@@ -46,7 +46,7 @@
       },
       "content": {
         "type": "link",
-        "body": "https://link.puzzak.page/?dashboard"
+        "body": "https://link.puzzak.page?link"
       },
       "tags": "general, article"
     }
@@ -90,7 +90,7 @@
       },
       "content": {
         "type": "link",
-        "body": "https://link.puzzak.page/?dashboard"
+        "body": "https://link.puzzak.page?link"
       },
       "tags": "general, article"
     }
