@@ -56,20 +56,28 @@ class backend with ChangeNotifier {
   String status = "Loading...";
   double progress = 0;
 
+  String twoDigits(int n) => n.toString().padLeft(2, '0');
   String formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final days = duration.inDays;
-    final hours = twoDigits(duration.inHours - (days * 24));
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    int days = duration.inDays;
+    String hours = twoDigits(duration.inHours - (days * 24));
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
     if(days == 0) {
       return '${DateFormat.yMMMEd().format(
           startDate)} ${DateFormat.jms().format(
-          startDate)}\n ($hours hrs, $minutes min, $seconds sec ago)';
+          startDate)}\n(${hours == "00"
+          ? ""
+          : "$hours hrs, "}${minutes == "00"
+          ? ""
+          : "$minutes min, "}$seconds sec ago)';
     }else{
       return '${DateFormat.yMMMEd().format(
           startDate)} ${DateFormat.jms().format(
-          startDate)}\n($days days, $hours hours ago)';
+          startDate)}\n(${days == 0
+          ? ""
+          : "$days days, "}${hours == "00"
+          ? ""
+          : "$hours hrs, "}$minutes minutes ago)';
     }
   }
   setNewTheme(){
@@ -101,12 +109,12 @@ class backend with ChangeNotifier {
     }
     daysLeft = nextBirthday.difference(now).inDays - 1;
     age = (now.difference(birthday).inDays / 365.25).floor();
-
   }
 
   getTelemetryTimer(){
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       getTelemetry();
+      setTimeDates();
     });
   }
   getTelemetry() async {
