@@ -17,8 +17,8 @@
         "local": true
       },
       "content": {
-        "type": "link",
-        "body": "https://stories.puzzak.page/autostream.html"
+        "type": "md",
+        "body": "stories/autostream.md"
       },
       "tags": "general, article"
     },
@@ -49,6 +49,20 @@
         "body": "https://link.puzzak.page?link"
       },
       "tags": "general, article"
+    },
+    {
+      "date": 1757704759,
+      "title": "Privacy Policy",
+      "description": "Privacy policy for Puzzak services.",
+      "pic": {
+        "url": "assets/icon.png",
+        "local": true
+      },
+      "content": {
+        "type": "md",
+        "body": "stories/privacy_policy.md"
+      },
+      "tags": "legal, article"
     }
   ],
   "projects": [
@@ -75,8 +89,8 @@
         "local": true
       },
       "content": {
-        "type": "link",
-        "body": "https://stories.puzzak.page/autostream.html"
+        "type": "md",
+        "body": "stories/autostream.md"
       },
       "tags": "general, article"
     },
