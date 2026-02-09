@@ -9,6 +9,7 @@
   ],
   "news": [
     {
+      "id": "autostream",
       "date": 1757704759,
       "title": "Autostreaming project",
       "description": "Real-time software-generated videofeed, using FFMPEG on Raspberry Pi with 96.66% uptime.",
@@ -23,6 +24,7 @@
       "tags": "general, article"
     },
     {
+      "id": "dashboard",
       "date": 1757704759,
       "title": "Dashboard",
       "description": "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
@@ -37,6 +39,7 @@
       "tags": "general, article"
     },
     {
+      "id": "links",
       "date": 1757704759,
       "title": "Link shortener",
       "description": "Simple link shortener with statistics. Yes, available for everyone.",
@@ -51,6 +54,7 @@
       "tags": "general, article"
     },
     {
+      "id": "privacy-policy",
       "date": 1757704759,
       "title": "Privacy Policy",
       "description": "Privacy policy for Puzzak services.",
@@ -67,6 +71,7 @@
   ],
   "projects": [
     {
+      "id": "game-of-life",
       "date": 1757704759,
       "title": "Conway's Game of Life",
       "description": "Cellular automata for Android, with 10K+ downloads.",
@@ -81,6 +86,7 @@
       "tags": "general, article"
     },
     {
+      "id": "autostream",
       "date": 1757704759,
       "title": "Autostreaming project",
       "description": "Real-time software-generated videofeed, using FFMPEG on Raspberry Pi with 96.66% uptime.",
@@ -95,6 +101,7 @@
       "tags": "general, article"
     },
     {
+      "id": "dashboard",
       "date": 1757704759,
       "title": "Dashboard",
       "description": "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
@@ -109,6 +116,7 @@
       "tags": "general, article"
     },
     {
+      "id": "links",
       "date": 1757704759,
       "title": "Link shortener",
       "description": "Simple link shortener with statistics. Yes, available for everyone.",
