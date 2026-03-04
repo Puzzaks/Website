@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
   <base href="$FLUTTER_BASE_HREF">
@@ -15,13 +16,13 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YCBFCR7P4N"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
 
     gtag('config', 'G-YCBFCR7P4N');
   </script>
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>Puzzak's</title>
 
@@ -37,7 +38,7 @@
   <link rel="apple-touch-icon" sizes="72x72" href="android-icon-72x72.png">
   <link rel="apple-touch-icon" sizes="144x144" href="android-icon-144x144.png">
   <link rel="apple-touch-icon" sizes="192x192" href="android-icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="96x96" href="android-icon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -45,35 +46,106 @@
   <meta name="msapplication-TileImage" content="ms-icon-144x144.png">
   <meta name="theme-color" content="#1d1b20">
   <script>
-    {{flutter_bootstrap_js}}
-  </script>
-  <script>
     window.flutterWebRenderer = 'canvaskit';
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", function () {
-          navigator.serviceWorker.register("/flutter_service_worker.js");
-        });
-      }
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
 
 </head>
-<body style="background-color: #1d1b20;">
+
+<body
+  style="background-color: #141414; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh;">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #141414;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease-out;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .loading-card {
+      background-color: #1a1c1b;
+      border-radius: 18px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+      max-width: 90vw;
+    }
+
+    .loading-text-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .loading-title {
+      color: #e6e0e9;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.15px;
+      margin: 0;
+      text-align: right;
+    }
+
+    .loading-subtitle {
+      color: #cac4d0;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.25px;
+      margin: 0;
+      text-align: right;
+    }
+  </style>
+
+  <div id="loading-screen">
+    <div class="loading-card">
+      <div class="loading-text-container">
+        <h2 class="loading-title">Loading Puzzak's...</h2>
+        <p class="loading-subtitle">Starting CanvasKit Engine</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- prettier-ignore -->
   <script>
-    window.addEventListener('load', function(ev) {
+    window.addEventListener('load', function (ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
-          serviceWorkerVersion: {{flutter_service_worker_version}},
+          serviceWorkerVersion: "{{flutter_service_worker_version}}",
         },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
+        onEntrypointLoaded: function (engineInitializer) {
+          engineInitializer.initializeEngine().then(function (appRunner) {
+            // Run Flutter instantly
             appRunner.runApp();
+
+            // Smoothly fade out the HTML loading screen then remove it from DOM
+            var loader = document.getElementById('loading-screen');
+            if (loader) {
+              loader.style.opacity = '0';
+              setTimeout(function () {
+                loader.remove();
+              }, 400); // 400ms matches the CSS opacity transition time
+            }
           });
         }
       });
     });
   </script>
 </body>
+
 </html>

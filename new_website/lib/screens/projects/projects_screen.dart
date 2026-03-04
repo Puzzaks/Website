@@ -3,23 +3,23 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../services/stories_service.dart';
 import '../../models/story.dart';
-import '../../widgets.dart'; // Keeping this if headerLine is used, check if it's used. headerLine IS used. list_screen line 74.
+import '../../widgets.dart';
 
-class StoriesListScreen extends StatefulWidget {
-  const StoriesListScreen({super.key});
+class ProjectsScreen extends StatefulWidget {
+  const ProjectsScreen({super.key});
 
   @override
-  State<StoriesListScreen> createState() => _StoriesListScreenState();
+  State<ProjectsScreen> createState() => _ProjectsScreenState();
 }
 
-class _StoriesListScreenState extends State<StoriesListScreen> {
+class _ProjectsScreenState extends State<ProjectsScreen> {
   final StoriesService _storiesService = StoriesService();
-  late Future<List<Story>> _storiesFuture;
+  late Future<List<Story>> _projectsFuture;
 
   @override
   void initState() {
     super.initState();
-    _storiesFuture = _storiesService.fetchNews();
+    _projectsFuture = _storiesService.fetchProjects();
   }
 
   @override
@@ -30,7 +30,7 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
           builder: (context, constraints) {
             double maxWidth = constraints.maxWidth;
             double padding = 32;
-            double elementWidth = 710;
+            double elementWidth = 710; // Standard grid box
             double spacing = 20;
 
             int columns =
@@ -46,17 +46,17 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                 maxWidth < elementWidth + padding ? contentWidth : elementWidth;
 
             return FutureBuilder<List<Story>>(
-              future: _storiesFuture,
+              future: _projectsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No stories found.'));
+                  return const Center(child: Text('No projects found.'));
                 }
 
-                final stories = snapshot.data!;
+                final projects = snapshot.data!;
 
                 return SingleChildScrollView(
                   child: Center(
@@ -68,8 +68,8 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             headerLine(
-                                "Stories",
-                                stories.length,
+                                "Projects",
+                                projects.length,
                                 contentWidth,
                                 Theme.of(context).textTheme.titleLarge?.color ??
                                     Colors.black),
@@ -78,9 +78,9 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                               alignment: WrapAlignment.start,
                               spacing: spacing,
                               runSpacing: spacing,
-                              children: stories
-                                  .map((story) =>
-                                      _buildStoryCard(story, cardWidth))
+                              children: projects
+                                  .map((project) =>
+                                      _buildStoryCard(project, cardWidth))
                                   .toList(),
                             )
                           ],
@@ -97,11 +97,10 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
     );
   }
 
-  Widget _buildStoryCard(Story story, double width) {
-    bool isLocal = story.isLocalImage;
-    String imageUrl = story.image;
+  Widget _buildStoryCard(Story project, double width) {
+    bool isLocal = project.isLocalImage;
+    String imageUrl = project.image;
     if (isLocal && !imageUrl.startsWith('http')) {
-      // Construct GitHub raw URL for assets
       imageUrl =
           'https://raw.githubusercontent.com/Puzzaks/Website/main/new_website/$imageUrl';
     }
@@ -114,34 +113,25 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
         elevation: 2,
         child: InkWell(
           onTap: () {
-            if (story.contentType == 'link') {
-              launchUrl(Uri.parse(story.contentBody),
+            if (project.contentType == 'link') {
+              launchUrl(Uri.parse(project.contentBody),
                   mode: LaunchMode.externalApplication);
             } else {
-              // Determine path depending on current location/subdomain
-              bool isSubdomain = Uri.base.host.startsWith('stories.') ||
-                  Uri.base.queryParameters.containsKey('stories_mode');
-
-              if (isSubdomain) {
-                context.go('/${Uri.encodeComponent(story.id)}', extra: story);
-              } else {
-                context.go('/stories/${Uri.encodeComponent(story.id)}',
-                    extra: story);
-              }
+              // Direct navigation to project details, properly prepended
+              context.go('/projects/${Uri.encodeComponent(project.id)}',
+                  extra: project);
             }
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image
-              if (story.image.isNotEmpty)
+              if (project.image.isNotEmpty)
                 AspectRatio(
                   aspectRatio: 16 / 9,
                   child: Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      // Fallback or placeholder
                       return Container(
                         color: Colors.grey[300],
                         child: const Center(
@@ -156,7 +146,7 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      story.title,
+                      project.title,
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -164,7 +154,7 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      story.description,
+                      project.description,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium,
@@ -173,14 +163,13 @@ class _StoriesListScreenState extends State<StoriesListScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Author not in new JSON, removing or defaulting
                         const Text(
-                          "Puzzak", // Default author
+                          "Puzzak",
                           style: TextStyle(fontSize: 12),
                         ),
                         Text(
-                          // Simple date formatting
-                          DateTime.fromMillisecondsSinceEpoch(story.date * 1000)
+                          DateTime.fromMillisecondsSinceEpoch(
+                                  project.date * 1000)
                               .toString()
                               .split(' ')[0],
                           style: Theme.of(context).textTheme.bodySmall,

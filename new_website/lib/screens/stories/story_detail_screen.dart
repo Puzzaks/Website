@@ -17,6 +17,7 @@ class StoryDetailScreen extends StatefulWidget {
 
 class _StoryDetailScreenState extends State<StoryDetailScreen> {
   final StoriesService _storiesService = StoriesService();
+  final ScrollController _scrollController = ScrollController();
   late Future<String> _contentFuture;
   Story? _story;
 
@@ -61,6 +62,12 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     String? imageUrl = _story?.image;
     if (_story != null &&
@@ -71,7 +78,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (context.canPop()) {
             context.pop();
@@ -79,7 +86,8 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             context.go('/');
           }
         },
-        child: const Icon(Icons.arrow_back),
+        icon: const Icon(Icons.arrow_back),
+        label: const Text("Return to the list"),
       ),
       body: SafeArea(
         child: FutureBuilder<String>(
@@ -96,17 +104,21 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             }
 
             return SingleChildScrollView(
+              controller: _scrollController,
               child: Center(
                 child: ConstrainedBox(
-                  constraints:
-                      BoxConstraints(maxWidth: 800), // Readable width for text
+                  constraints: const BoxConstraints(
+                      maxWidth: 800), // Readable width for text
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Hero Image
+                      SizedBox(
+                        height: 15,
+                      ),
                       if (imageUrl != null && imageUrl.isNotEmpty)
                         AspectRatio(
-                          aspectRatio: 21 / 9,
+                          aspectRatio: 16 / 9,
                           child: Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
@@ -128,6 +140,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                                     .textTheme
                                     .displaySmall
                                     ?.copyWith(
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
                               ),
@@ -138,7 +151,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                                     .textTheme
                                     .titleSmall
                                     ?.copyWith(
-                                      color: Colors.grey,
+                                      color: Colors.white,
                                     ),
                               ),
                               const SizedBox(height: 32),
@@ -158,25 +171,40 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                                 p: Theme.of(context)
                                     .textTheme
                                     .bodyLarge
-                                    ?.copyWith(fontSize: 18, height: 1.6),
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        height: 1.6),
                                 h1: Theme.of(context)
                                     .textTheme
                                     .headlineMedium
                                     ?.copyWith(
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         height: 1.5),
                                 h2: Theme.of(context)
                                     .textTheme
                                     .headlineSmall
                                     ?.copyWith(
+                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         height: 1.4),
                                 blockquote: Theme.of(context)
                                     .textTheme
                                     .bodyMedium
                                     ?.copyWith(
-                                        color: Colors.grey[700],
+                                        color: Colors.white,
                                         fontStyle: FontStyle.italic),
+                                a: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: Colors.white,
+                                        decorationThickness: 2,
+                                        decorationStyle:
+                                            TextDecorationStyle.solid),
                               ),
                             ),
                             const SizedBox(height: 64),

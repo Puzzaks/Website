@@ -7,15 +7,15 @@ class StoriesService {
   static const String _baseUrl = 'raw.githubusercontent.com';
   static const String _basePath = 'Puzzaks/Website/main/new_website/assets';
 
-  // Cache to store stories list
-  List<Story>? _cachedStories;
+  // Cache to store lists
+  List<Story>? _cachedNews;
+  List<Story>? _cachedProjects;
 
   // Cache to store story content
   final Map<String, String> _contentCache = {};
 
-  /// Fetches the list of stories from index.json
-  Future<List<Story>> fetchStories() async {
-    if (_cachedStories != null) return _cachedStories!;
+  Future<void> _fetchIndexData() async {
+    if (_cachedNews != null && _cachedProjects != null) return;
 
     try {
       final uri = Uri.https(_baseUrl, '$_basePath/news/index.json');
@@ -26,22 +26,40 @@ class StoriesService {
         final List<dynamic> newsJson = data['news'] ?? [];
         final List<dynamic> projectsJson = data['projects'] ?? [];
 
-        final allStories = [...newsJson, ...projectsJson];
+        _cachedNews = newsJson.map((json) => Story.fromJson(json)).toList();
+        _cachedNews!.sort((a, b) => b.date.compareTo(a.date));
 
-        _cachedStories =
-            allStories.map((json) => Story.fromJson(json)).toList();
-
-        // Sort by date descending
-        _cachedStories!.sort((a, b) => b.date.compareTo(a.date));
-
-        return _cachedStories!;
+        _cachedProjects =
+            projectsJson.map((json) => Story.fromJson(json)).toList();
+        _cachedProjects!.sort((a, b) => b.date.compareTo(a.date));
       } else {
-        throw Exception('Failed to load stories: ${response.statusCode}');
+        throw Exception('Failed to load index.json: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching stories: $e');
-      return []; // Return empty list on error
+      print('Error fetching index.json: $e');
+      _cachedNews = [];
+      _cachedProjects = [];
     }
+  }
+
+  /// Fetches the list of news from index.json
+  Future<List<Story>> fetchNews() async {
+    await _fetchIndexData();
+    return _cachedNews ?? [];
+  }
+
+  /// Fetches the list of projects from index.json
+  Future<List<Story>> fetchProjects() async {
+    await _fetchIndexData();
+    return _cachedProjects ?? [];
+  }
+
+  /// Keep this for backwards compatibility if needed, though we will phase it out
+  Future<List<Story>> fetchStories() async {
+    await _fetchIndexData();
+    final allStories = [...?_cachedNews, ...?_cachedProjects];
+    allStories.sort((a, b) => b.date.compareTo(a.date));
+    return allStories;
   }
 
   /// Fetches the markdown content of a specific story

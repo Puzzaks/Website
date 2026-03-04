@@ -34,4 +34,5 @@ flutter:
     - assets/links-project.png
     - assets/map-project.png
     - assets/secret-project.png
+    - assets/rusnya/
     - pubspec.yaml

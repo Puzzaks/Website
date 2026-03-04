@@ -144,35 +144,77 @@ class DesktopPageState extends State<DesktopPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Enable Dark Mode",
+                                            "Theme Preference",
                                             style: const TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold),
                                           ),
                                           Text(
                                             backend.mode == ThemeMode.system
-                                                ? "Adjusted to your system now"
+                                                ? "Adapting to your browser"
                                                 : backend.mode ==
                                                         ThemeMode.light
-                                                    ? "Switched to Light Mode now"
-                                                    : "Switched to Dark Mode now",
+                                                    ? "Forced Light Mode"
+                                                    : "Forced Dark Mode",
                                             style: const TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                             ),
                                           )
                                         ],
                                       ),
                                     ]),
-                                    Switch(
-                                      thumbIcon: backend.thumbIcon,
-                                      value: backend.mode == ThemeMode.dark,
-                                      inactiveThumbColor: Colors.teal,
-                                      activeColor: Colors.teal,
-                                      inactiveTrackColor:
-                                          Color.fromRGBO(29, 27, 32, 1),
-                                      onChanged: (bool value) {
-                                        backend.setNewTheme();
+                                    SegmentedButton<ThemeMode>(
+                                      showSelectedIcon: false,
+                                      segments: [
+                                        ButtonSegment<ThemeMode>(
+                                          value: ThemeMode.light,
+                                          icon: const Icon(
+                                              Icons.light_mode_rounded),
+                                          label: MediaQuery.of(context)
+                                                      .size
+                                                      .width >
+                                                  900
+                                              ? const Text('Light',
+                                                  style:
+                                                      TextStyle(fontSize: 12))
+                                              : null,
+                                        ),
+                                        ButtonSegment<ThemeMode>(
+                                          value: ThemeMode.system,
+                                          icon: const Icon(
+                                              Icons.brightness_auto_rounded),
+                                          label: MediaQuery.of(context)
+                                                      .size
+                                                      .width >
+                                                  900
+                                              ? const Text('System',
+                                                  style:
+                                                      TextStyle(fontSize: 12))
+                                              : null,
+                                        ),
+                                        ButtonSegment<ThemeMode>(
+                                          value: ThemeMode.dark,
+                                          icon: const Icon(
+                                              Icons.dark_mode_rounded),
+                                          label: MediaQuery.of(context)
+                                                      .size
+                                                      .width >
+                                                  900
+                                              ? const Text('Dark',
+                                                  style:
+                                                      TextStyle(fontSize: 12))
+                                              : null,
+                                        ),
+                                      ],
+                                      selected: <ThemeMode>{backend.mode},
+                                      onSelectionChanged:
+                                          (Set<ThemeMode> newSelection) {
+                                        backend
+                                            .setThemeMode(newSelection.first);
                                       },
+                                      style: const ButtonStyle(
+                                        visualDensity: VisualDensity.compact,
+                                      ),
                                     )
                                   ],
                                 ),

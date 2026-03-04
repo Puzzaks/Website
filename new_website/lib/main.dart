@@ -3,21 +3,38 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:system_theme/system_theme.dart';
 import 'dart:core';
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:new_website/backend.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-import 'package:new_website/desktop.dart';
-import 'package:new_website/mobile.dart';
+import 'package:new_website/widgets/responsive_scaffold.dart';
+import 'package:new_website/screens/home/home_screen.dart';
+import 'package:new_website/screens/telemetry/telemetry_screen.dart';
+import 'package:new_website/screens/projects/projects_screen.dart';
 import 'package:new_website/screens/stories/stories_list_screen.dart';
 import 'package:new_website/screens/stories/story_detail_screen.dart';
 import 'package:new_website/models/story.dart';
 
+// Create a key for the root navigator so we can push screens without the bottom nav bar (if needed later)
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _shellNavigatorHomeKey =
+    GlobalKey<NavigatorState>(debugLabel: 'shellHome');
+final GlobalKey<NavigatorState> _shellNavigatorStoriesKey =
+    GlobalKey<NavigatorState>(debugLabel: 'shellStories');
+final GlobalKey<NavigatorState> _shellNavigatorTelemetryKey =
+    GlobalKey<NavigatorState>(debugLabel: 'shellTelemetry');
+final GlobalKey<NavigatorState> _shellNavigatorProjectsKey =
+    GlobalKey<NavigatorState>(debugLabel: 'shellProjects');
+
 void main() {
-  usePathUrlStrategy();
+  try {
+    usePathUrlStrategy();
+  } catch (_) {
+    // Ignore "Invalid engine initialization state" during hot restart on web.
+  }
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => backend(),
@@ -29,7 +46,6 @@ void main() {
 class WebMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    WidgetsFlutterBinding.ensureInitialized();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<backend>(context, listen: false).start();
     });
@@ -48,38 +64,101 @@ class _WebMainRouterState extends State<WebMainRouter> {
   @override
   void initState() {
     super.initState();
-    // Determine subdomain (primitive check)
-    // In a real deployed environment, we check Uri.base.host
-    // localhost for testing might need a query param override
+    // Determine subdomain
     String host = Uri.base.host;
-    // Check for query param 'stories_mode' in the initial load URL
-    // We should look at Uri.base, not state (which isn't available yet)
-    // But GoRouter hasn't parsed it yet? Uri.base gives the browser URL.
     bool isStoriesSubdomain = host.startsWith('stories.') ||
         Uri.base.queryParameters.containsKey('stories_mode');
+    bool isDashboardSubdomain =
+        host.startsWith('dashboard.') || host.startsWith('telemetry.');
+    bool isProjectsSubdomain = host.startsWith('projects.');
+
+    // Dynamically assign branch paths based on the active subdomain.
+    // This allows the router to render the correct tab at '/' without
+    // forcing a URL redirect that appends the path to the address bar!
+    String homePath =
+        (isStoriesSubdomain || isDashboardSubdomain || isProjectsSubdomain)
+            ? '/home'
+            : '/';
+    String storiesPath = isStoriesSubdomain ? '/' : '/stories';
+    String dashboardPath = isDashboardSubdomain ? '/' : '/dashboard';
+    String projectsPath = isProjectsSubdomain ? '/' : '/projects';
 
     _router = GoRouter(
+      navigatorKey: _rootNavigatorKey,
+      initialLocation: '/',
       routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) {
-            if (isStoriesSubdomain) {
-              return const StoriesListScreen();
-            } else {
-              return const MainSiteLayout();
-            }
+        // StatefulShellRoute creates our bottom nav/sidebar wrapping the inner pages
+        StatefulShellRoute.indexedStack(
+          builder: (BuildContext context, GoRouterState state,
+              StatefulNavigationShell navigationShell) {
+            return ResponsiveNavScaffold(navigationShell: navigationShell);
           },
-          routes: [
-            // Only allow direct slug access on stories subdomain
-            if (isStoriesSubdomain)
-              GoRoute(
-                path: ':slug',
-                builder: (context, state) {
-                  final slug = state.pathParameters['slug']!;
-                  final story = state.extra as Story?;
-                  return StoryDetailScreen(slug: slug, storyObj: story);
-                },
-              ),
+          branches: [
+            // Branch 0: Home
+            StatefulShellBranch(
+              navigatorKey: _shellNavigatorHomeKey,
+              routes: [
+                GoRoute(
+                  path: homePath,
+                  builder: (BuildContext context, GoRouterState state) =>
+                      const HomeScreen(),
+                ),
+              ],
+            ),
+            // Branch 1: Stories
+            StatefulShellBranch(
+              navigatorKey: _shellNavigatorStoriesKey,
+              routes: [
+                GoRoute(
+                    path: storiesPath,
+                    builder: (BuildContext context, GoRouterState state) =>
+                        const StoriesListScreen(),
+                    routes: [
+                      // Story details sub-route.
+                      // To handle direct `stories.puzzak.page/slug` we need an alias at root mapping
+                      GoRoute(
+                        path: ':slug',
+                        builder: (context, state) {
+                          final slug = state.pathParameters['slug']!;
+                          final story = state.extra as Story?;
+                          return StoryDetailScreen(slug: slug, storyObj: story);
+                        },
+                      ),
+                    ]),
+              ],
+            ),
+            // Branch 2: Telemetry
+            StatefulShellBranch(
+              navigatorKey: _shellNavigatorTelemetryKey,
+              routes: [
+                GoRoute(
+                  path: dashboardPath,
+                  builder: (BuildContext context, GoRouterState state) =>
+                      const TelemetryScreen(),
+                ),
+              ],
+            ),
+            // Branch 3: Projects
+            StatefulShellBranch(
+              navigatorKey: _shellNavigatorProjectsKey,
+              routes: [
+                GoRoute(
+                  path: projectsPath,
+                  builder: (BuildContext context, GoRouterState state) =>
+                      const ProjectsScreen(),
+                  routes: [
+                    GoRoute(
+                      path: ':slug',
+                      builder: (context, state) {
+                        final slug = state.pathParameters['slug']!;
+                        final story = state.extra as Story?;
+                        return StoryDetailScreen(slug: slug, storyObj: story);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ],
@@ -104,52 +183,35 @@ class _WebMainRouterState extends State<WebMainRouter> {
   }
 
   ThemeData _buildTheme(Brightness brightness) {
-    // Shared theme builder to keep consistent with original
-    var baseScheme = ColorScheme.fromSwatch(
-      primarySwatch: Colors.teal,
-      accentColor: Colors.teal,
-      cardColor: brightness == Brightness.light
-          ? Colors.teal.withValues(alpha: 100)
-          : Colors.teal.withValues(alpha: 220),
-      backgroundColor: Colors.teal,
-      errorColor: Colors.orange,
+    const tealAccent = Color(0xFF009688);
+    var baseScheme = ColorScheme.fromSeed(
+      seedColor: tealAccent,
       brightness: brightness,
     );
 
+    // Force background and surface to exactly match between nested material widgets
+    final targetBackground = brightness == Brightness.light
+        ? const Color(0xFFFAFAFA)
+        : const Color(0xFF141414);
+
     return ThemeData(
-      colorScheme: baseScheme,
-      useMaterial3: true,
-      cardColor: brightness == Brightness.light
-          ? Colors.white
-          : Colors.teal.withValues(alpha: 198),
-      iconTheme: IconThemeData(
-        color: brightness == Brightness.light ? Colors.black : Colors.white,
+      colorScheme: baseScheme.copyWith(
+        surface: targetBackground,
+        primary: tealAccent,
+        secondaryContainer: brightness == Brightness.dark
+            ? tealAccent.withOpacity(0.3)
+            : tealAccent.withOpacity(0.2),
+        onSecondaryContainer:
+            brightness == Brightness.dark ? Colors.white : tealAccent,
       ),
-    );
-  }
-}
-
-class MainSiteLayout extends StatelessWidget {
-  const MainSiteLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            final backendProvider =
-                Provider.of<backend>(context, listen: false);
-            backendProvider.context = context;
-            backendProvider.scaffoldWidth = constraints.maxWidth;
-            backendProvider.scaffoldHeight = constraints.maxHeight;
-            if (backendProvider.scaffoldWidth < 1060) {
-              return const MobilePage();
-            } else {
-              return const DesktopPage();
-            }
-          },
-        ),
+      useMaterial3: true,
+      scaffoldBackgroundColor: targetBackground,
+      // Automatically derive a nice contrasting card color from the dynamic surface palette
+      cardColor: brightness == Brightness.light
+          ? baseScheme.surfaceContainerHighest
+          : baseScheme.surfaceContainer,
+      iconTheme: IconThemeData(
+        color: brightness == Brightness.light ? Colors.black87 : Colors.white,
       ),
     );
   }
