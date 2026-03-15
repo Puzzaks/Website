@@ -54,7 +54,7 @@ class TelemetryScreen extends StatelessWidget {
                             UptimeCard(width: fullCardWidth),
                             Wrap(
                               alignment: WrapAlignment.center,
-                              spacing: 5,
+                              spacing: 0,
                               runSpacing: 0,
                               children: [
                                 TestTelemetryGraphCard(

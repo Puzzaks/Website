@@ -54,7 +54,7 @@ class backend with ChangeNotifier {
   int memused = 0;
 
   int daysLeft = 0;
-  int age = 0;
+  double age = 0;
   bool isLoading = true;
   String status = "Loading...";
   double progress = 0;
@@ -68,7 +68,7 @@ class backend with ChangeNotifier {
     if (days == 0) {
       return '${DateFormat.yMMMEd().format(startDate)} ${DateFormat.jms().format(startDate)}\n(${hours == "00" ? "" : "$hours hrs, "}${minutes == "00" ? "" : "$minutes min, "}$seconds sec ago)';
     } else {
-      return '${DateFormat.yMMMEd().format(startDate)} ${DateFormat.jms().format(startDate)}\n(${days == 0 ? "" : "$days days, "}${hours == "00" ? "" : "$hours hrs, "}$minutes minutes ago)';
+      return '${DateFormat.yMMMEd().format(startDate)} ${DateFormat.jms().format(startDate)}\n(${days == 0 ? "" : "$days days, "}${hours == "00" ? "" : "$hours hrs, "}$minutes min ago)';
     }
   }
 
@@ -80,7 +80,7 @@ class backend with ChangeNotifier {
   }
 
   setTimeDates() {
-    now = DateTime.now();
+    now = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch + Duration(days: 0).inMilliseconds);
     birthday = DateTime(2002, 3, 18);
     nextBirthday = DateTime(now.year, birthday.month, birthday.day);
     remoteTime =
@@ -105,8 +105,21 @@ class backend with ChangeNotifier {
     if (nextBirthday.isBefore(now) || nextBirthday.isAtSameMomentAs(now)) {
       nextBirthday = DateTime(now.year + 1, birthday.month, birthday.day);
     }
-    daysLeft = nextBirthday.difference(now).inDays - 1;
-    age = (now.difference(birthday).inDays / 365.25).floor();
+    daysLeft = nextBirthday.difference(now).inDays + 1;
+    double calculatePreciseAge(DateTime birthDate) {
+      int ageYears = now.year - birthDate.year;
+      DateTime lastBirthday = DateTime(now.year, birthDate.month, birthDate.day);
+      if (lastBirthday.isAfter(now)) {
+        ageYears--;
+        lastBirthday = DateTime(now.year - 1, birthDate.month, birthDate.day);
+      }
+      DateTime nextBirthday = DateTime(lastBirthday.year + 1, birthDate.month, birthDate.day);
+      int totalYearDays = nextBirthday.difference(lastBirthday).inDays;
+      int daysSinceLastBirthday = now.difference(lastBirthday).inDays;
+      double fractionalAge = daysSinceLastBirthday / totalYearDays;
+      return ageYears + fractionalAge;
+    }
+    age = calculatePreciseAge(birthday);
   }
 
   getTelemetryTimer() {

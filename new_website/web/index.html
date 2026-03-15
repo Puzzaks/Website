@@ -5,6 +5,30 @@
 
   <base href="$FLUTTER_BASE_HREF">
 
+  <!-- Native redirect from subdomains to main domain subpaths before Flutter loads -->
+  <script>
+    (function () {
+      var host = window.location.hostname;
+      if (host.endsWith('puzzak.page') && host !== 'puzzak.page' && host !== 'www.puzzak.page' && host !== 'localhost' && host !== '127.0.0.1') {
+        var parts = host.split('.');
+        if (parts.length >= 3) {
+          var subdomain = parts[0];
+          var path = window.location.pathname;
+          var newPath = '';
+          if (subdomain === 'stories') newPath = '/stories';
+          else if (subdomain === 'dashboard' || subdomain === 'telemetry') newPath = '/dashboard';
+          else if (subdomain === 'projects') newPath = '/projects';
+
+          if (newPath !== '') {
+            newPath = newPath + (path === '/' ? '' : path);
+            var newUrl = 'https://puzzak.page' + newPath + window.location.search + window.location.hash;
+            window.location.replace(newUrl);
+          }
+        }
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
 

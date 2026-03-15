@@ -10,15 +10,32 @@ import '../widgets.dart'; // for headerLine if needed, though we might move it h
 
 class ProfileCard extends StatelessWidget {
   final double width;
-  const ProfileCard({super.key, this.width = 350});
+  final bool columns;
+  final Color trueColor;
+  final Color realColor;
+  const ProfileCard({super.key, this.width = 350, this.columns = false, this.trueColor = Colors.red, this.realColor = Colors.red});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
       child: Card(
-        color: Theme.of(context).cardColor,
+        elevation: 3,
+        color: realColor,
+        surfaceTintColor: trueColor,
+        margin: EdgeInsets.symmetric(
+            horizontal: 2,
+            vertical: 2
+        ),
         clipBehavior: Clip.hardEdge,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              bottomRight: Radius.circular(5),
+              topRight: Radius.circular(columns?5:20),
+              topLeft: Radius.circular(20),
+              bottomLeft: Radius.circular(5)
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Row(
@@ -51,7 +68,10 @@ class ProfileCard extends StatelessWidget {
 
 class AgeCard extends StatelessWidget {
   final double width;
-  const AgeCard({super.key, this.width = 350});
+  final bool columns;
+  final Color trueColor;
+  final Color realColor;
+  const AgeCard({super.key, this.width = 350, this.columns = false, this.trueColor = Colors.red, this.realColor = Colors.red});
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +80,22 @@ class AgeCard extends StatelessWidget {
         return SizedBox(
           width: width,
           child: Card(
-            color: Theme.of(context).cardColor,
+            elevation: 3,
+            color: realColor,
+            surfaceTintColor: trueColor,
+            margin: EdgeInsets.symmetric(
+                horizontal: 2,
+                vertical: 2
+            ),
             clipBehavior: Clip.hardEdge,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(5),
+                  topRight: Radius.circular(columns?20:5),
+                  topLeft: Radius.circular(5),
+                  bottomLeft: Radius.circular(5)
+              ),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Row(
@@ -75,17 +109,16 @@ class AgeCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "I'm ${((DateTime.now().difference(DateTime.utc(2002, 3, 18)).inDays / 365.25)).toStringAsFixed(2)} y.o.",
-                        // Note: Original code had a -1 logic in mobile but not desktop?
-                        // Desktop: (diff / 365.25).toStringAsFixed(2)
-                        // Mobile: ((diff / 365.25) - 1).toStringAsFixed(2)
-                        // I will align to the Desktop version as it seems more standard, or maybe the user is 22 turning 23?
-                        // Let's stick to the simpler desktop math for consistency unless requested otherwise.
+                        backend.age.toStringAsFixed(3) == "${backend.age.toStringAsFixed(0)}.000"
+                          ? "I'm ${backend.age.toStringAsFixed(0)} today!"
+                          : "I'm ${backend.age.toStringAsFixed(3)} y.o.",
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        "${backend.daysLeft} days left till I'm ${backend.age + 1}.",
+                        backend.age.toStringAsFixed(3) == "${backend.age.toStringAsFixed(0)}.000"
+                            ? "It's my birthday!"
+                            : "${backend.daysLeft} days left till I'm ${(backend.age.floor() + 1)}.",
                         style: const TextStyle(fontSize: 16),
                       )
                     ],
@@ -102,7 +135,9 @@ class AgeCard extends StatelessWidget {
 
 class ThemeSwitchCard extends StatelessWidget {
   final double width;
-  const ThemeSwitchCard({super.key, this.width = 700}); // Default larger width
+  final Color trueColor;
+  final Color realColor;
+  const ThemeSwitchCard({super.key, this.width = 700, this.trueColor = Colors.red, this.realColor = Colors.red});
 
   @override
   Widget build(BuildContext context) {
@@ -111,14 +146,29 @@ class ThemeSwitchCard extends StatelessWidget {
         return SizedBox(
           width: width,
           child: Card(
-            color: Theme.of(context).cardColor,
+            margin: EdgeInsets.symmetric(
+                horizontal: 2,
+                vertical: 2
+            ),
+            elevation: 3,
+            color: realColor,
+            surfaceTintColor: trueColor,
             clipBehavior: Clip.hardEdge,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(20),
+                    topRight: Radius.circular(5),
+                    topLeft: Radius.circular(5),
+                    bottomLeft: Radius.circular(20)
+                )
+            ),
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(children: [
+                  Row(
+                      children: [
                     const Padding(
                       padding: EdgeInsets.only(left: 15, right: 20),
                       child: Icon(Icons.contrast),
@@ -127,54 +177,57 @@ class ThemeSwitchCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          "Theme Preference",
+                          "Theme",
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           backend.mode == ThemeMode.system
-                              ? "Adapting to your browser"
+                              ? "Adaptive"
                               : backend.mode == ThemeMode.light
-                                  ? "Forced Light Mode"
-                                  : "Forced Dark Mode",
+                                  ? "Light"
+                                  : "Dark",
                           style: const TextStyle(fontSize: 14),
                         )
                       ],
                     ),
                   ]),
-                  SegmentedButton<ThemeMode>(
-                    showSelectedIcon: false,
-                    segments: [
-                      ButtonSegment<ThemeMode>(
-                        value: ThemeMode.light,
-                        icon: const Icon(Icons.light_mode_rounded),
-                        label: width > 600
-                            ? const Text('Light',
-                                style: TextStyle(fontSize: 12))
-                            : null,
+                  Padding(
+                    padding: EdgeInsetsGeometry.only(right: 5),
+                    child: SegmentedButton<ThemeMode>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment<ThemeMode>(
+                          value: ThemeMode.light,
+                          icon: const Icon(Icons.light_mode_rounded),
+                          label: width > 600
+                              ? const Text('Light',
+                              style: TextStyle(fontSize: 12))
+                              : null,
+                        ),
+                        ButtonSegment<ThemeMode>(
+                          value: ThemeMode.system,
+                          icon: const Icon(Icons.brightness_auto_rounded),
+                          label: width > 600
+                              ? const Text('System',
+                              style: TextStyle(fontSize: 12))
+                              : null,
+                        ),
+                        ButtonSegment<ThemeMode>(
+                          value: ThemeMode.dark,
+                          icon: const Icon(Icons.dark_mode_rounded),
+                          label: width > 600
+                              ? const Text('Dark', style: TextStyle(fontSize: 12))
+                              : null,
+                        ),
+                      ],
+                      selected: <ThemeMode>{backend.mode},
+                      onSelectionChanged: (Set<ThemeMode> newSelection) {
+                        backend.setThemeMode(newSelection.first);
+                      },
+                      style: const ButtonStyle(
+                        visualDensity: VisualDensity.compact,
                       ),
-                      ButtonSegment<ThemeMode>(
-                        value: ThemeMode.system,
-                        icon: const Icon(Icons.brightness_auto_rounded),
-                        label: width > 600
-                            ? const Text('System',
-                                style: TextStyle(fontSize: 12))
-                            : null,
-                      ),
-                      ButtonSegment<ThemeMode>(
-                        value: ThemeMode.dark,
-                        icon: const Icon(Icons.dark_mode_rounded),
-                        label: width > 600
-                            ? const Text('Dark', style: TextStyle(fontSize: 12))
-                            : null,
-                      ),
-                    ],
-                    selected: <ThemeMode>{backend.mode},
-                    onSelectionChanged: (Set<ThemeMode> newSelection) {
-                      backend.setThemeMode(newSelection.first);
-                    },
-                    style: const ButtonStyle(
-                      visualDensity: VisualDensity.compact,
                     ),
                   )
                 ],
@@ -633,7 +686,7 @@ class TestTelemetryGraphCard extends StatefulWidget {
     required this.valueText,
     required this.progressValue,
     required this.icon,
-    this.width = 233,
+    this.width = 235,
   });
 
   @override

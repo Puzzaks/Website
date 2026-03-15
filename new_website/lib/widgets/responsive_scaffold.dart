@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:url_launcher/url_launcher.dart';
 import '../backend.dart';
 
 class ResponsiveNavScaffold extends StatelessWidget {
@@ -14,29 +12,14 @@ class ResponsiveNavScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   void _goBranch(int index) {
-    String host = Uri.base.host;
-    bool isLocal = host == 'localhost' || host == '127.0.0.1';
-
-    if (kIsWeb && !isLocal) {
-      if (index != navigationShell.currentIndex) {
-        final domains = [
-          'https://puzzak.page',
-          'https://stories.puzzak.page',
-          'https://dashboard.puzzak.page',
-          'https://projects.puzzak.page',
-        ];
-        launchUrl(Uri.parse(domains[index]), webOnlyWindowName: '_self');
-      }
-    } else {
-      navigationShell.goBranch(
-        index,
-        // A common pattern when using bottom navigation bars is to support
-        // navigating to the initial location when tapping the item that is
-        // already active. This example demonstrates how to support this behavior,
-        // using the initialLocation parameter of goBranch.
-        initialLocation: index == navigationShell.currentIndex,
-      );
-    }
+    navigationShell.goBranch(
+      index,
+      // A common pattern when using bottom navigation bars is to support
+      // navigating to the initial location when tapping the item that is
+      // already active. This example demonstrates how to support this behavior,
+      // using the initialLocation parameter of goBranch.
+      initialLocation: index == navigationShell.currentIndex,
+    );
   }
 
   @override
