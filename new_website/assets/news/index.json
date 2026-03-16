@@ -61,7 +61,7 @@
       "title": "Fractal Viewer",
       "description": "Fractal Viewer is an interactive & customizable Mandelbrot viewer, made with Flutter. It's UI uses Material You along with system code adaptibility.",
       "pic": {
-        "url": "assets/Fracals_BG.jpeg",
+        "url": "assets/Fractals_BG.jpeg",
         "local": true
       },
       "content": {
