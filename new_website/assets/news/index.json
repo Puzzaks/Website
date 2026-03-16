@@ -54,6 +54,21 @@
         "body": "https://play.google.com/store/apps/details?id=page.puzzak.gol"
       },
       "tags": "general, article"
+    },
+    {
+      "id": "fractals",
+      "date": 1757704759,
+      "title": "Fractal Viewer",
+      "description": "Fractal Viewer is an interactive & customizable Mandelbrot viewer, made with Flutter. It's UI uses Material You along with system code adaptibility.",
+      "pic": {
+        "url": "assets/Fracals_BG.jpeg",
+        "local": true
+      },
+      "content": {
+        "type": "link",
+        "body": "https://play.google.com/store/apps/details?id=page.puzzak.fractals"
+      },
+      "tags": "general, article"
     }
   ]
 }
