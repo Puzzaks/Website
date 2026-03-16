@@ -24,36 +24,6 @@
       "tags": "general, article"
     },
     {
-      "id": "dashboard",
-      "date": 1757704759,
-      "title": "Dashboard",
-      "description": "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
-      "pic": {
-        "url": "assets/dashboard-project.png",
-        "local": true
-      },
-      "content": {
-        "type": "link",
-        "body": "https://link.puzzak.page/?dashboard"
-      },
-      "tags": "general, article"
-    },
-    {
-      "id": "links",
-      "date": 1757704759,
-      "title": "Link shortener",
-      "description": "Simple link shortener with statistics. Yes, available for everyone.",
-      "pic": {
-        "url": "assets/links-project.png",
-        "local": true
-      },
-      "content": {
-        "type": "link",
-        "body": "https://link.puzzak.page?link"
-      },
-      "tags": "general, article"
-    },
-    {
       "id": "privacy-policy",
       "date": 1772575200,
       "title": "Privacy Policy",
@@ -82,51 +52,6 @@
       "content": {
         "type": "link",
         "body": "https://play.google.com/store/apps/details?id=page.puzzak.gol"
-      },
-      "tags": "general, article"
-    },
-    {
-      "id": "autostream",
-      "date": 1757704759,
-      "title": "Autostreaming project",
-      "description": "Real-time software-generated videofeed, using FFMPEG on Raspberry Pi with 96.66% uptime.",
-      "pic": {
-        "url": "assets/autostream-project.png",
-        "local": true
-      },
-      "content": {
-        "type": "md",
-        "body": "stories/autostream.md"
-      },
-      "tags": "general, article"
-    },
-    {
-      "id": "dashboard",
-      "date": 1757704759,
-      "title": "Dashboard",
-      "description": "Statuses, telemetry, data I use and a bit more - open to the world, free to use.",
-      "pic": {
-        "url": "assets/dashboard-project.png",
-        "local": true
-      },
-      "content": {
-        "type": "link",
-        "body": "https://link.puzzak.page/?dashboard"
-      },
-      "tags": "general, article"
-    },
-    {
-      "id": "links",
-      "date": 1757704759,
-      "title": "Link shortener",
-      "description": "Simple link shortener with statistics. Yes, available for everyone.",
-      "pic": {
-        "url": "assets/links-project.png",
-        "local": true
-      },
-      "content": {
-        "type": "link",
-        "body": "https://link.puzzak.page?link"
       },
       "tags": "general, article"
     }
