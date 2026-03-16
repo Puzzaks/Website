@@ -55,11 +55,11 @@
     },
     {
       "id": "privacy-policy",
-      "date": 1757704759,
+      "date": 1772575200,
       "title": "Privacy Policy",
-      "description": "Privacy policy for Puzzak services.",
+      "description": "Privacy policy for my projects and this website.",
       "pic": {
-        "url": "assets/indev.jpg",
+        "url": "assets/Privacy_BG.png",
         "local": true
       },
       "content": {
