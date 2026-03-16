@@ -46,7 +46,7 @@
       "title": "Conway's Game of Life",
       "description": "Cellular automata for Android, with 10K+ downloads.",
       "pic": {
-        "url": "assets/indev.jpg",
+        "url": "assets/GoL_BG.png",
         "local": true
       },
       "content": {
