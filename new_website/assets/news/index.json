@@ -44,7 +44,7 @@
       "title": "MD3 2048",
       "description": "My fist game: Material Design 2048 game.",
       "pic": {
-        "url": "assets/2048_BG.png",
+        "url": "assets/2048_BG.jpg",
         "local": true
       },
       "content": {
