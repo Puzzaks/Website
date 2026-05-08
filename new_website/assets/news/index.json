@@ -45,7 +45,7 @@
       "description": "My fist game: Material Design 2048 game.",
       "pic": {
         "url": "assets/2048_BG.png",
-        "local": true
+        "local": false
       },
       "content": {
         "type": "md",
@@ -96,7 +96,7 @@
       },
       "content": {
         "type": "link",
-        "body": "stories/2048.md"
+        "body": "https://play.google.com/store/apps/details?id=page.puzzak.material2048"
       },
       "tags": "general, article"
     }
