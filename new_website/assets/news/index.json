@@ -48,8 +48,8 @@
         "local": false
       },
       "content": {
-        "type": "md",
-        "body": "stories/2048.md"
+        "type": "link",
+        "body": "https://play.google.com/store/apps/details?id=page.puzzak.material2048"
       },
       "tags": "general, article"
     }
@@ -95,8 +95,8 @@
         "local": true
       },
       "content": {
-        "type": "link",
-        "body": "https://play.google.com/store/apps/details?id=page.puzzak.material2048"
+        "type": "body",
+        "body": "stories/2048.md"
       },
       "tags": "general, article"
     }
