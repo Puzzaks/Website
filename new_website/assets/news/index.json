@@ -49,7 +49,7 @@
       },
       "content": {
         "type": "md",
-        "body": "stories/2048"
+        "body": "stories/2048.md"
       },
       "tags": "general, article"
     }
@@ -86,7 +86,7 @@
       "tags": "general, article"
     },
     {
-      "id": "2048",
+      "id": "2048PS",
       "date": 1778276418,
       "title": "MD3 2048",
       "description": "My fist game: Material Design 2048 game",
