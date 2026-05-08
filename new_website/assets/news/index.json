@@ -45,11 +45,11 @@
       "description": "My fist game: Material Design 2048 game.",
       "pic": {
         "url": "assets/2048_BG.png",
-        "local": false
+        "local": true
       },
       "content": {
-        "type": "link",
-        "body": "https://play.google.com/store/apps/details?id=page.puzzak.material2048"
+        "type": "md",
+        "body": "stories/2048.md"
       },
       "tags": "general, article"
     }
@@ -86,7 +86,7 @@
       "tags": "general, article"
     },
     {
-      "id": "2048PS",
+      "id": "2048",
       "date": 1778276418,
       "title": "MD3 2048",
       "description": "My fist game: Material Design 2048 game",
@@ -95,8 +95,8 @@
         "local": true
       },
       "content": {
-        "type": "body",
-        "body": "stories/2048.md"
+        "type": "link",
+        "body": "https://play.google.com/store/apps/details?id=page.puzzak.material2048"
       },
       "tags": "general, article"
     }
